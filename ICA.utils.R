@@ -1,3 +1,4 @@
+####ICA Clustering####
 ParaICA <- function(CountMatrix,numberofcomponents,iteration,numberofcores=4,...) {
   require(foreach)
   require(doParallel)
@@ -57,7 +58,8 @@ ParaICA <- function(CountMatrix,numberofcomponents,iteration,numberofcores=4,...
               'Demixing.Matrix'=Demixing.Matrix))
 }
 
-Stability_Score_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=6) {
+####Stability Clustering####
+IR_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=6) {
   library(reshape2)
   Clusters=unique(Clustering_identity)
   melted=melt(Correlation_Matrix)
@@ -98,6 +100,46 @@ Stability_Score_Calculation <- function(Correlation_Matrix,Clustering_identity,n
   return(stability_indices)
 }
 
+Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=6) {
+  library(reshape2)
+  Clusters=unique(Clustering_identity)
+  melted=melt(Correlation_Matrix)
+  melted=melted[melted$Var1!=melted$Var2,]
+  stability_indices=c()
+  
+  require(foreach)
+  require(doParallel)
+  require(doSNOW)
+  cl <- makeCluster(numberofcores)
+  registerDoSNOW(cl)
+  
+  pb <- txtProgressBar(max = length(Clusters), style = 3)
+  progress <- function(n) setTxtProgressBar(pb, n)
+  opts <- list(progress = progress)
+  x=foreach(i=seq(1,length(Clusters)),.packages=c('fastICA','JADE','MASS'), .options.snow = opts) %dopar% {
+    cluster=Clusters[i]
+    Ck=length(Clustering_identity[Clustering_identity==cluster])
+    krij=melted$value[melted$Var1%in%names(Clustering_identity[Clustering_identity==cluster])&
+                        melted$Var2%in%names(Clustering_identity[Clustering_identity==cluster])]
+    
+    Cl=length(Clustering_identity[Clustering_identity!=cluster])
+    lrij=melted$value[melted$Var1%in%names(Clustering_identity[Clustering_identity==cluster])&
+                          melted$Var2%in%names(Clustering_identity[Clustering_identity!=cluster])]
+    
+
+    stability_index=((1/(Ck^2))*(sum(krij)))-((1/Ck)*(1/Cl)*(sum(lrij)))
+    return(stability_index)
+  }
+  
+  close(pb)
+  stopCluster(cl)
+  x=unlist(x)
+  stability_indices=x
+  names(stability_indices)=Clusters
+  return(stability_indices)
+}
+
+####Signature Clustering####
 Signature_Leiden_Clustering <- function(Disimmilarity,Affiliation.Matrix,Signature.Matrix,min_res=0.1,max_res=10,numberofcores=6) {
   require('Seurat')
   require('igraph')
@@ -194,6 +236,8 @@ Signature_Leiden_Clustering <- function(Disimmilarity,Affiliation.Matrix,Signatu
 }
 
 Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,Signature.Matrix,min_cluster=2,max_cluster=200,numberofcores=8,...) {
+  require(cluster)
+  require(ggplot2)
   clustering_results=hclust(as.dist(Disimmilarity),...)
   
   
@@ -235,22 +279,22 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
   
   
   
-  for (i in 1:ncol(Clustered.Signature.matrix)) {
-    if (length(rownames(clustering.results)[clustering.results$clustering.results==i])>1){
-      tmp_sig=Signature.Matrix[,rownames(clustering.results)[clustering.results$clustering.results==i]]
-      tmp_sig=apply(tmp_sig,1,median)
-      Clustered.Signature.matrix[,i]=tmp_sig
-      tmp_sig=Affiliation.Matrix[,rownames(clustering.results)[clustering.results$clustering.results==i]]
-      tmp_sig=apply(tmp_sig,1,median)
-      Clustered.Affiliation.matrix[,i]=tmp_sig}
-    else {
-      tmp_sig=Signature.Matrix[,rownames(clustering.results)[clustering.results$clustering.results==i]]
-      Clustered.Signature.matrix[,i]=tmp_sig
-      tmp_sig=Affiliation.Matrix[,rownames(clustering.results)[clustering.results$clustering.results==i]]
-      Clustered.Affiliation.matrix[,i]=tmp_sig
-      
-    }
-  }
+  #for (i in 1:ncol(Clustered.Signature.matrix)) {
+  #  if (length(rownames(clustering.results)[clustering.results$clustering.results==i])>1){
+  #    tmp_sig=Signature.Matrix[,rownames(clustering.results)[clustering.results$clustering.results==i]]
+  #    tmp_sig=apply(tmp_sig,1,median)
+  #    Clustered.Signature.matrix[,i]=tmp_sig
+  #    tmp_sig=Affiliation.Matrix[,rownames(clustering.results)[clustering.results$clustering.results==i]]
+  #    tmp_sig=apply(tmp_sig,1,median)
+  #    Clustered.Affiliation.matrix[,i]=tmp_sig}
+  #  else {
+  #    tmp_sig=Signature.Matrix[,rownames(clustering.results)[clustering.results$clustering.results==i]]
+  #    Clustered.Signature.matrix[,i]=tmp_sig
+  #    tmp_sig=Affiliation.Matrix[,rownames(clustering.results)[clustering.results$clustering.results==i]]
+  #    Clustered.Affiliation.matrix[,i]=tmp_sig
+  #    
+  #  }
+  #}
   
   
   
