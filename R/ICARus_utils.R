@@ -285,7 +285,6 @@ IR_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=
 #' @import doParallel
 #' @import doSNOW
 #' @import snow
-#' @export
 Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=6,euclidean=F) {
   Correlation_Matrix=as.matrix(Correlation_Matrix)
   Correlation_Matrix=apply(Correlation_Matrix,c(1,2),as.numeric)
