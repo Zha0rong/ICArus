@@ -56,10 +56,10 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores,cluster
   
   for (i in 1:nrow(Cluster.Quality)) {
     if (Cluster.Quality$SignatureNumber[i]>iteration) {
-      Cluster.Quality$QualityIndex[i]=Cluster.Quality$QualityIndex[i]#/(Cluster.Quality$SignatureNumber[i])
+      Cluster.Quality$QualityIndex[i]=Cluster.Quality$QualityIndex[i]
     }
     if (Cluster.Quality$SignatureNumber[i]<iteration) {
-      Cluster.Quality$QualityIndex[i]=Cluster.Quality$QualityIndex[i]#(Cluster.Quality$SignatureNumber[i])
+      Cluster.Quality$QualityIndex[i]=Cluster.Quality$QualityIndex[i]
     } 
   }
   

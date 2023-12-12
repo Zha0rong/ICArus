@@ -26,7 +26,6 @@ fasterICA_def <- function (X, n.comp, tol, fun, alpha, maxit, w.init){
         gwx <- matrix(gwx, n.comp, p, byrow = TRUE)
         xgwx <- X * gwx
         v1 <- matrixStats::rowMeans2(xgwx)
-        
         g.wx <- alpha * (1 - (tanh(alpha * wx))^2)
         v2 <- mean(g.wx) * w
         w1 <- v1 - v2
@@ -144,8 +143,6 @@ faster_ICA <- function (whitening_list,n.comp, alg.typ = c("parallel","deflation
   n=whitening_list$n
   p=whitening_list$p
   X1=whitening_list$X1
-  #K <- matrix(K[1:n.comp, ], n.comp, p)
-  #X1 <- mat.mult(K, X)
   if (method=='R'){
     if (alg.typ == "deflation"){
       a <- fasterICA_def(X1, n.comp, tol = tol, fun = fun,
@@ -180,25 +177,20 @@ ParaICA <- function(CountMatrix,faster_whiten=NULL,numberofcomponents,iteration,
   pb <- txtProgressBar(max = iteration, style = 3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
-  
   x=foreach::foreach(i=seq(1,iteration),.packages=c('fastICA','Rfast'),.export = c('faster_ICA','fasterICA_par','fasterICA_def'), .options.snow = opts) %dopar% {
     if (is.null(faster_whiten)){resICA=fastICA(CountMatrix,n.comp = numberofcomponents,...)}
     if (!is.null(faster_whiten)){resICA=faster_ICA(whitening_list = faster_whiten,n.comp = numberofcomponents,...)
     }
-    
     Affiliation.Matrix=(as.matrix(resICA$A))
     Signature.Matrix=(as.matrix(resICA$S))
-    
     rownames(Affiliation.Matrix)=paste0('n.',seq(1,nrow(Affiliation.Matrix)))
     colnames(Affiliation.Matrix)=colnames(CountMatrix)
     colnames(Signature.Matrix)=paste0('n','.',seq(1,ncol((Signature.Matrix))))
     rownames(Signature.Matrix)=rownames(CountMatrix)
     Affiliation.Matrix=t(Affiliation.Matrix)
     Results=list()
-    
     Results[['Affiliation.Matrix']]=Affiliation.Matrix
     Results[['Signature.Matrix']]=Signature.Matrix
-    
     return(Results)
   }
   close(pb)
@@ -255,26 +247,17 @@ IR_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=
   Clustering_identity=as.character(Clustering_identity)
   names(Clustering_identity)=names
   Clusters=unique(Clustering_identity)
-  
   stability_indices=c()
-  
-
   cl <- snow::makeCluster(numberofcores)
   registerDoSNOW(cl)
-  
   pb <- txtProgressBar(max = length(Clusters), style = 3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
   x=foreach(i=seq(1,length(Clusters)),.packages=c('fastICA'), .options.snow = opts) %dopar% {
-    
     cluster=Clusters[i]
     Ck=length((Clustering_identity[Clustering_identity==cluster]))
     krij=as.numeric(Correlation_Matrix[names(Clustering_identity[Clustering_identity==cluster]),
                                        names(Clustering_identity[Clustering_identity==cluster])])
-    #krij=melted$value[melted$Var1%in%names(Clustering_identity[Clustering_identity==cluster])&
-    #                    melted$Var2%in%names(Clustering_identity[Clustering_identity==cluster])]
-    
-    
     list=c()
     for (j in Clusters[Clusters!=cluster]) {
       Cl=length(Clustering_identity[Clustering_identity==j])
@@ -291,7 +274,6 @@ IR_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=
   snow::stopCluster(cl)
   x=unlist(x)
   stability_indices=sum(x)/length(Clusters)
-  #names(stability_indices)='1'
   return(stability_indices)
 }
 
@@ -321,18 +303,13 @@ Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity
     Ck=length((Clustering_identity[Clustering_identity==cluster]))
     krij=as.numeric(Correlation_Matrix[names(Clustering_identity[Clustering_identity==cluster]),
                                        names(Clustering_identity[Clustering_identity==cluster])])
-
     Cl=length((Clustering_identity[Clustering_identity!=cluster]))
-
     lrij=as.numeric(Correlation_Matrix[names(Clustering_identity[Clustering_identity==cluster]),
                                        names(Clustering_identity[Clustering_identity!=cluster])])
     stability_index=((1/(Ck^2))*(sum(krij)))-((1/(Ck*Cl))*(sum(lrij)))
-    
-    
     return(stability_index)
     
   }
-  
   close(pb)
   snow::stopCluster(cl)
   x=unlist(x)
@@ -351,11 +328,9 @@ Individual_Clustering <- function(Matrix,Group,ncluster,method='complete') {
   selected=sample(unique(Group),1)
   selected.matrix=Matrix[,names(Group)[Group==selected]]
   ncluster=ncluster
-  
   reference=seq(1,ncluster)
   names(reference)=colnames(selected.matrix)
   results=reference
-  
   for (i in unique(Group)[unique(Group)!=selected]) {
     temp=cbind(selected.matrix,Matrix[,names(Group)[Group==i]])
     temp=WGCNA::adjacency(as.matrix(temp),power = 1)
@@ -374,6 +349,4 @@ Individual_Clustering <- function(Matrix,Group,ncluster,method='complete') {
     results=c(results,testing.results)
   }
   return(results)
-  
-  
 }
