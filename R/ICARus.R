@@ -10,7 +10,7 @@
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @import GDAtools
 #' @import coop
-#' @import matrixStats
+#' @importFrom matrixStats rowMeans2
 #' @import WGCNA
 #' @import Rfast
 #' @export

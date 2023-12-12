@@ -1,7 +1,7 @@
 #' fasterICA_def
 #' @description A faster implementation of fastICA_def from fastICA package
-#' @import matrixStats
-#' @import Rfast
+#' @importFrom matrixStats rowMeans2
+#' @importFrom Rfast mat.mult
 fasterICA_def <- function (X, n.comp, tol, fun, alpha, maxit, w.init){
   p <- ncol(X)
   W <- matrix(0, n.comp, n.comp)
@@ -79,8 +79,8 @@ fasterICA_def <- function (X, n.comp, tol, fun, alpha, maxit, w.init){
 
 #' fasterICA_par
 #' @description A faster implementation of fastICA_par from fastICA package
-#' @import matrixStats
-#' @import Rfast
+#' @importFrom matrixStats rowMeans2
+#' @importFrom Rfast mat.mult
 fasterICA_par <- function (X, n.comp, tol, fun, alpha, maxit, verbose, w.init) {
   Diag <- function(d) if(length(d) > 1L) diag(d) else as.matrix(d)
   p <- ncol(X)
@@ -126,8 +126,8 @@ fasterICA_par <- function (X, n.comp, tol, fun, alpha, maxit, verbose, w.init) {
 
 #' faster_ICA
 #' @description A faster implementation of fastICA from fastICA package
-#' @import matrixStats
-#' @import Rfast
+#' @importFrom matrixStats rowMeans2
+#' @importFrom Rfast mat.mult
 #' @import Rcpp
 faster_ICA <- function (whitening_list,n.comp, alg.typ = c("parallel","deflation"),
                         fun = c("logcosh", "exp"),row.norm = FALSE, maxit = 200, tol = 1e-04,alpha=1,
@@ -213,7 +213,7 @@ ParaICA <- function(CountMatrix,faster_whiten=NULL,numberofcomponents,iteration,
 
 #' faster_ICA_whitening
 #' @description This function generates the whitened matrix for fasterICA
-#' @import Rfast
+#' @importFrom Rfast mat.mult
 #' @import rsvd
 faster_ICA_whitening <- function (X) {
   require(Rfast)
