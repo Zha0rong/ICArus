@@ -9,18 +9,18 @@ License: MIT + file LICENSE
 URL: https://github.com/Zha0rong/ICArus
 BugReports: https://github.com/Zha0rong/ICArus/issues
 Imports:
- GDAtools
- Rcpp
- Rfast
- WGCNA
- coop
- doParallel
- doSNOW
- foreach
- matrixStats
- reshape2
- rsvd
- snow
+ GDAtools,
+ Rcpp,
+ Rfast,
+ WGCNA,
+ coop,
+ doParallel,
+ doSNOW,
+ foreach,
+ matrixStats,
+ reshape2,
+ rsvd,
+ snow,
  truncnorm
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
