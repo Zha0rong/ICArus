@@ -27,7 +27,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=1,clust
 
   Signature.Matrix=as.matrix(ICAResults$Signature.Matrix)
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
-  correlation=WGCNA::adjacency(as.matrix(Affiliation.Matrix),power = 1)
+  correlation=WGCNA::adjacency(as.matrix(Signature.Matrix),power = 1)
   Disimilarity.fixed=1-abs(correlation)
   Disimmilarity.Results=list()
 
@@ -95,7 +95,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=1,cluste
     ICAResults=ParaICA(CountMatrix = Matrix,faster_whiten =  temp,numberofcomponents = i,iteration=iteration,numberofcores = numberofcores,...)
     Signature.Matrix=ICAResults$Signature.Matrix
     Affiliation.Matrix=ICAResults$Affiliation.Matrix
-    correlation=WGCNA::adjacency(as.matrix(Affiliation.Matrix),power = 1)
+    correlation=WGCNA::adjacency(as.matrix(Signature.Matrix),power = 1)
     Disimilarity.fixed=1-abs(correlation)
     Disimmilarity.Results=list()
     Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
