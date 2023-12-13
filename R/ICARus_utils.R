@@ -194,7 +194,6 @@ ParaICA <- function(CountMatrix,faster_whiten=NULL,numberofcomponents,iteration,
     return(Results)
   }
   close(pb)
-  doParallel::stopImplicitCluster()
   snow::stopCluster(cl)
   Affiliation.Matrix=list()
   Signature.Matrix=list()
@@ -272,7 +271,6 @@ IR_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=
   }
   
   close(pb)
-  doParallel::stopImplicitCluster()
   snow::stopCluster(cl)
   x=unlist(x)
   stability_indices=sum(x)/length(Clusters)
@@ -313,7 +311,6 @@ Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity
     
   }
   close(pb)
-  doParallel::stopImplicitCluster()
   snow::stopCluster(cl)
   x=unlist(x)
   stability_indices=x
