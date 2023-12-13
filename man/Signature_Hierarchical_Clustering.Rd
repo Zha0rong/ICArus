@@ -2,7 +2,7 @@
 % Please edit documentation in R/ICARus.R
 \name{Signature_Hierarchical_Clustering}
 \alias{Signature_Hierarchical_Clustering}
-\title{PCA.Estimation}
+\title{Signature_Hierarchical_Clustering}
 \usage{
 Signature_Hierarchical_Clustering(
   Disimmilarity,

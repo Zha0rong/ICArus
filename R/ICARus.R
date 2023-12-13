@@ -9,7 +9,7 @@
 #' @param numberofcores Number of cores to use. The default is 2.
 #' @param clustering_algorithm The hierarchical clustering algorithm for clustering the independent component analysis. Default is 'complete'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
-#' @import GDAtools
+#' @importFrom GDAtools medoids
 #' @import coop
 #' @importFrom matrixStats rowMeans2
 #' @import WGCNA
@@ -71,7 +71,6 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
 #' @param numberofcores Number of cores to use. The default is 2.
 #' @param clustering_algorithm The hierarchical clustering algorithm for clustering the independent component analysis. Default is 'complete'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
-#' @import GDAtools
 #' @import coop
 #' @importFrom matrixStats rowMeans2
 #' @import WGCNA
@@ -151,7 +150,7 @@ PCA.Estimation <- function(Matrix=NULL) {
 
 
 
-#' PCA.Estimation
+#' Signature_Hierarchical_Clustering
 #' @description 
 #' This function estimate the optimal number of clusters in a group of independent component analysis results.
 #' @param Disimmilarity A dissimilarity matrix.
@@ -161,12 +160,13 @@ PCA.Estimation <- function(Matrix=NULL) {
 #' @param max_cluster Maximum number of clusters to be tested, default is half of number of columns in  Signature Matrix.
 #' @param numberofcores Number of cores to use. The default is 2.
 #' @return A list of one vector and one ggplot,
-#' @import cluster
+#' @importFrom cluster silhouette
 #' @import doParallel
 #' @import ggplot2
 #' @import doParallel
 #' @import doSNOW
 #' @import foreach
+#' @importFrom GDAtools medoids
 #' @export
 Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,Signature.Matrix,min_cluster=2,max_cluster=ncol(Disimmilarity)/2,numberofcores=2,...) {
   clustering_results=hclust(as.dist(Disimmilarity),...)
