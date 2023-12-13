@@ -6,7 +6,7 @@
 #' @param Matrix  A Matrix where rows are features and columns are observations.
 #' @param numberofcomponents Number of independent component to compute, must be an integer larger than 1.
 #' @param iteration The number of iterations of ICA to be run, default is 100.
-#' @param numberofcores Number of threads to use. The default is 2
+#' @param numberofcores Number of threads to use. The default is 2.
 #' @param clustering_algorithm The hierarchical clustering algorithm for clustering the independent component analysis. Default is 'complete'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @import GDAtools
@@ -68,7 +68,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
 #' @param Matrix  A Matrix where rows are features and columns are observations.
 #' @param parameter_set A vector of integers. Every one of the integer in the vector needs to be larger than 2.
 #' @param iteration The number of iterations of ICA to be run, default is 100.
-#' @param numberofcores Number of threads to use. The default is 2
+#' @param numberofcores Number of threads to use. The default is 2.
 #' @param clustering_algorithm The hierarchical clustering algorithm for clustering the independent component analysis. Default is 'complete'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @import GDAtools
