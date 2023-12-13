@@ -6,7 +6,7 @@
 #' @param Matrix  A Matrix where rows are features and columns are observations.
 #' @param numberofcomponents Number of independent component to compute, must be an integer larger than 1.
 #' @param iteration The number of iterations of ICA to be run, default is 100.
-#' @param numberofcores Number of threads to use. The default is 2.
+#' @param numberofcores Number of cores to use. The default is 2.
 #' @param clustering_algorithm The hierarchical clustering algorithm for clustering the independent component analysis. Default is 'complete'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @import GDAtools
@@ -68,7 +68,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
 #' @param Matrix  A Matrix where rows are features and columns are observations.
 #' @param parameter_set A vector of integers. Every one of the integer in the vector needs to be larger than 2.
 #' @param iteration The number of iterations of ICA to be run, default is 100.
-#' @param numberofcores Number of threads to use. The default is 2.
+#' @param numberofcores Number of cores to use. The default is 2.
 #' @param clustering_algorithm The hierarchical clustering algorithm for clustering the independent component analysis. Default is 'complete'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @import GDAtools
@@ -121,3 +121,112 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,cluste
   
   
 }
+
+
+#' PCA.Estimation
+#' @description 
+#' This function performs PCA analysis on a given matrix, and estimate the best number of independent components by finding the elbow point in the variance explained elbow plot.
+#' @param Matrix  A Matrix where rows are features and columns are observations.
+#' @return A list of one vector and one ggplot,
+#' @import ggplot2
+#' @import ggrepel
+#' @import kneedle
+#' @export
+PCA.Estimation <- function(Matrix=NULL) {
+  Results=list()
+  PCA=prcomp(t(Matrix),center=F,scale.=F)
+  PCA.summary=summary(PCA)
+  PCA.candidates=PCA.summary$importance[1,][order(PCA.summary$importance[1,],decreasing = T)]
+  point=diff(smooth(PCA.candidates))*(-1)
+  point=which(point>=mean(point[point>0]))
+  point=point[point<=0.5*ncol(Matrix)]
+  Results$ElbowPoint=kneedle(seq(1,length(PCA.candidates)),y = PCA.candidates)[1]
+  
+  plot_data=data.frame(index=seq(1,length(PCA.candidates)),stdev=PCA.candidates)
+  plot_data$label=ifelse(plot_data$index==Results$ElbowPoint,yes=paste0('Elbow Point: ',Results$ElbowPoint),no='')
+  Results$plot=ggplot(plot_data,aes(x=index,y=stdev,label=label))+geom_point(data = plot_data[plot_data$label == "",])+geom_text_repel(point.size =5)+geom_point(data = plot_data[plot_data$label != "",])+geom_vline(xintercept = Results$ElbowPoint,linewidth=1.0,colour='red',linetype="dotted")
+  return(Results)
+}
+
+
+
+
+#' PCA.Estimation
+#' @description 
+#' This function estimate the optimal number of clusters in a group of independent component analysis results.
+#' @param Disimmilarity A dissimilarity matrix.
+#' @param Affiliation.Matrix The Affiliation Matrix output by ICARus.
+#' @param Signature.Matrix The Signature Matrix output by ICARus.
+#' @param min_cluster Minimum number of clusters to be tested, default is 2.
+#' @param max_cluster Maximum number of clusters to be tested, default is half of number of columns in  Signature Matrix.
+#' @param numberofcores Number of cores to use. The default is 2.
+#' @return A list of one vector and one ggplot,
+#' @import cluster
+#' @import doParallel
+#' @import ggplot2
+#' @import doParallel
+#' @import doSNOW
+#' @import foreach
+#' @export
+Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,Signature.Matrix,min_cluster=2,max_cluster=ncol(Disimmilarity)/2,numberofcores=2,...) {
+  clustering_results=hclust(as.dist(Disimmilarity),...)
+  max_cluster=ncol(Disimmilarity)/2
+  
+  cl <- makeCluster(numberofcores)
+  registerDoSNOW(cl)
+  
+  pb <- txtProgressBar(max = length(seq(min_cluster,max_cluster)), style = 3)
+  progress <- function(n) setTxtProgressBar(pb, n)
+  opts <- list(progress = progress)
+  x=foreach(i=seq(min_cluster,max_cluster),.packages=c('cluster'), .options.snow = opts) %dopar% {
+    Clustering.results=cutree(clustering_results,k = i)
+    sil=silhouette(Clustering.results,dist = Disimmilarity)
+    sil=mean(sil[,3])
+    return(sil)
+  }
+  close(pb)
+  stopCluster(cl)
+  
+  
+  sils=unlist(x)
+  
+  silhouettes=data.frame(silhouettes=(sils),resolution=seq(min_cluster,max_cluster))
+  figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouettes)])+ggtitle('Averaged Silhouettes Graph')
+  
+  Clustering.results=cutree(clustering_results,k = min(silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouette)]))
+  
+  clustering.results=Clustering.results
+  clustering.results=data.frame(clustering.results)
+  
+  
+  
+  Medoids=GDAtools::medoids(as.dist(Disimmilarity),
+                            Clustering.results)
+  
+  Medoids=names(Clustering.results)[Medoids]
+  print(Medoids)
+  Clustered.Signature.matrix=Signature.Matrix[,Medoids]
+  Clustered.Affiliation.matrix=Affiliation.Matrix[,Medoids]
+  
+  colnames(Clustered.Affiliation.matrix)=seq(1,ncol(Clustered.Affiliation.matrix))
+  colnames(Clustered.Signature.matrix)=seq(1,ncol(Clustered.Signature.matrix))
+  colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
+  colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  return(list(
+    'silhouettes'=silhouettes,
+    'silhouettes_figure'=figure,
+    'Clustered.Signature.matrix'=Clustered.Signature.matrix,
+    'Clustered.Affiliation.matrix'=Clustered.Affiliation.matrix,
+    'Clustering.results'=Clustering.results))
+}
+
