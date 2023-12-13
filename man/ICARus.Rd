@@ -8,7 +8,7 @@ ICARus(
   Matrix,
   numberofcomponents,
   iteration = 100,
-  numberofcores = 1,
+  numberofcores = 2,
   clustering_algorithm = "complete",
   ...
 )
@@ -20,7 +20,7 @@ ICARus(
 
 \item{iteration}{The number of iterations of ICA to be run, default is 100.}
 
-\item{numberofcores}{Number of threads to use. The default is 1}
+\item{numberofcores}{Number of threads to use. The default is 2}
 
 \item{clustering_algorithm}{The hierarchical clustering algorithm for clustering the independent component analysis. Default is 'complete'.}
 }

@@ -7,8 +7,7 @@
 Cluster_Stability_Calculation(
   Correlation_Matrix,
   Clustering_identity,
-  numberofcores = 6,
-  euclidean = F
+  numberofcores = 2
 )
 }
 \description{

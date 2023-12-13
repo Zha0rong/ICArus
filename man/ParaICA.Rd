@@ -9,7 +9,7 @@ ParaICA(
   faster_whiten = NULL,
   numberofcomponents,
   iteration,
-  numberofcores = 4,
+  numberofcores = 2,
   ...
 )
 }

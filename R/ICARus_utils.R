@@ -170,7 +170,7 @@ faster_ICA <- function (whitening_list,n.comp, alg.typ = c("parallel","deflation
 #' @import Rfast
 #' @import snow
 
-ParaICA <- function(CountMatrix,faster_whiten=NULL,numberofcomponents,iteration,numberofcores=4,...) {
+ParaICA <- function(CountMatrix,faster_whiten=NULL,numberofcomponents,iteration,numberofcores=2,...) {
 
   cl <- snow::makeCluster(numberofcores)
   doSNOW::registerDoSNOW(cl)
@@ -240,7 +240,7 @@ faster_ICA_whitening <- function (X) {
 #' @import doSNOW
 #' @import snow
 
-IR_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=6) {
+IR_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=2) {
   Correlation_Matrix=as.matrix(Correlation_Matrix)
   Correlation_Matrix=apply(Correlation_Matrix,c(1,2),as.numeric)
   names=names(Clustering_identity)
@@ -285,7 +285,7 @@ IR_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=
 #' @import doParallel
 #' @import doSNOW
 #' @import snow
-Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=6,euclidean=F) {
+Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity,numberofcores=2) {
   Correlation_Matrix=as.matrix(Correlation_Matrix)
   Correlation_Matrix=apply(Correlation_Matrix,c(1,2),as.numeric)
   names=names(Clustering_identity)

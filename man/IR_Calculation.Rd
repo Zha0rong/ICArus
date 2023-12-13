@@ -4,7 +4,7 @@
 \alias{IR_Calculation}
 \title{IR_Calculation}
 \usage{
-IR_Calculation(Correlation_Matrix, Clustering_identity, numberofcores = 6)
+IR_Calculation(Correlation_Matrix, Clustering_identity, numberofcores = 2)
 }
 \description{
 This function generates the IR index for ICA
