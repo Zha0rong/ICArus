@@ -1,0 +1,56 @@
+	Patient_ID	patient_outcome	Timepoint	Data
+SD20_D3_RNA	SD20	Fatal	D3	RNA
+SD20_D2_RNA	SD20	Fatal	D2	RNA
+SD20_D11_RNA	SD20	Fatal	D11	RNA
+SD05_D9_RNA	SD05	Fatal	D9	RNA
+SD05_D7_RNA	SD05	Fatal	D7	RNA
+SD05_D1_RNA	SD05	Fatal	D1	RNA
+SD04_DC_RNA	SD04	Prolonged recovery	DC	RNA
+SD04_D3_RNA	SD04	Prolonged recovery	D3	RNA
+SD04_D11_RNA	SD04	Prolonged recovery	D11	RNA
+SD02_D3_RNA	SD02	Fast recovery	D3	RNA
+SD02_D1_RNA	SD02	Fast recovery	D1	RNA
+SD01_DC_RNA	SD01	Prolonged recovery	DC	RNA
+SD01_D9_RNA	SD01	Prolonged recovery	D9	RNA
+SD01_D7_RNA	SD01	Prolonged recovery	D7	RNA
+SD01_D5_RNA	SD01	Prolonged recovery	D5	RNA
+SD01_D3_RNA	SD01	Prolonged recovery	D3	RNA
+SD20_DC_RNA	SD20	Fatal	DC	RNA
+SD20_D9_RNA	SD20	Fatal	D9	RNA
+SD20_D7_RNA	SD20	Fatal	D7	RNA
+SD20_D5_RNA	SD20	Fatal	D5	RNA
+SD20_D1_RNA	SD20	Fatal	D1	RNA
+SD15_D5_RNA	SD15	Fatal	D5	RNA
+SD15_D3_RNA	SD15	Fatal	D3	RNA
+SD15_D2_RNA	SD15	Fatal	D2	RNA
+SD15_D1_RNA	SD15	Fatal	D1	RNA
+SD14_DC_RNA	SD14	Fast recovery	DC	RNA
+SD13_DC_RNA	SD13	Fast recovery	DC	RNA
+SD13_D1_RNA	SD13	Fast recovery	D1	RNA
+SD09_DC_RNA	SD09	Prolonged recovery	DC	RNA
+SD09_D9_RNA	SD09	Prolonged recovery	D9	RNA
+SD09_D7_RNA	SD09	Prolonged recovery	D7	RNA
+SD09_D5_RNA	SD09	Prolonged recovery	D5	RNA
+SD09_D3_RNA	SD09	Prolonged recovery	D3	RNA
+SD09_D11_RNA	SD09	Prolonged recovery	D11	RNA
+SD09_D1_RNA	SD09	Prolonged recovery	D1	RNA
+SD07_DC_RNA	SD07	Prolonged recovery	DC	RNA
+SD07_D9_RNA	SD07	Prolonged recovery	D9	RNA
+SD07_D7_RNA	SD07	Prolonged recovery	D7	RNA
+SD07_D5_RNA	SD07	Prolonged recovery	D5	RNA
+SD07_D3_RNA	SD07	Prolonged recovery	D3	RNA
+SD07_D1_RNA	SD07	Prolonged recovery	D1	RNA
+SD06_D5_RNA	SD06	Fast recovery	D5	RNA
+SD06_D3_RNA	SD06	Fast recovery	D3	RNA
+SD06_D1_RNA	SD06	Fast recovery	D1	RNA
+SD05_DC_RNA	SD05	Fatal	DC	RNA
+SD05_D5_RNA	SD05	Fatal	D5	RNA
+SD05_D3_RNA	SD05	Fatal	D3	RNA
+SD05_D11_RNA	SD05	Fatal	D11	RNA
+SD04_D9_RNA	SD04	Prolonged recovery	D9	RNA
+SD04_D7_RNA	SD04	Prolonged recovery	D7	RNA
+SD04_D5_RNA	SD04	Prolonged recovery	D5	RNA
+SD04_D1_RNA	SD04	Prolonged recovery	D1	RNA
+SD02_D7_RNA	SD02	Fast recovery	D7	RNA
+SD01_D11_RNA	SD01	Prolonged recovery	D11	RNA
+SD01_D1_RNA	SD01	Prolonged recovery	D1	RNA
