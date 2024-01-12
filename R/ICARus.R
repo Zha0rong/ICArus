@@ -14,6 +14,7 @@
 #' @importFrom matrixStats rowMeans2
 #' @import WGCNA
 #' @import Rfast
+#' @import kneedle
 #' @export
 ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clustering_algorithm="complete",...) {
 
@@ -28,7 +29,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
   gene_variance=matrixStats::rowVars(Signature.Matrix,useNames = T)
   gene_variance=gene_variance[order(gene_variance,decreasing = T)]
-  selected_genes=names(gene_variance)[seq(1,kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
+  selected_genes=names(gene_variance)[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
   correlation=WGCNA::adjacency(as.matrix(Signature.Matrix[selected_genes,]),power = 1)
   Disimilarity.fixed=1-abs(correlation)
   Disimmilarity.Results=list()
@@ -76,6 +77,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
 #' @importFrom matrixStats rowMeans2
 #' @import WGCNA
 #' @import Rfast
+#' @import kneedle
 #' @export
 ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,clustering_algorithm='complete',...) {
   ICA.Tests.list=list()
@@ -98,7 +100,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,cluste
     
     gene_variance=matrixStats::rowVars(Signature.Matrix,useNames = T)
     gene_variance=gene_variance[order(gene_variance,decreasing = T)]
-    selected_genes=names(gene_variance)[seq(1,kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
+    selected_genes=names(gene_variance)[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
     
     
     correlation=WGCNA::adjacency(as.matrix(Signature.Matrix[selected_genes,]),power = 1)
