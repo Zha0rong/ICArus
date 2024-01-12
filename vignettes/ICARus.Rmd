@@ -61,7 +61,6 @@ Independent Component Analysis (ICA) can be used to analyze transcriptome data i
 
 ICA is an unsupervised learning algorithm, which means that the output of the algorithm depends on the parameter being input.
 
-ICARus, standing for "Independent Component Analysis implemented in R with Ultra fast Speed", is a tool to 
 
 
 
