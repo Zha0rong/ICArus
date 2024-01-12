@@ -23,18 +23,19 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
 
   
   ICAResults=ParaICA(Matrix,numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
-  print('Finished ParaICA')
 
   Signature.Matrix=as.matrix(ICAResults$Signature.Matrix)
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
-  correlation=WGCNA::adjacency(as.matrix(Signature.Matrix),power = 1)
+  gene_variance=matrixStats::rowVars(Signature.Matrix,useNames = T)
+  gene_variance=gene_variance[order(gene_variance,decreasing = T)]
+  selected_genes=names(gene_variance)[seq(1,kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
+  correlation=WGCNA::adjacency(as.matrix(Signature.Matrix[selected_genes,]),power = 1)
   Disimilarity.fixed=1-abs(correlation)
   Disimmilarity.Results=list()
 
   Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
   names(Group)=colnames(Signature.Matrix)
-  Matrix=Signature.Matrix
-  Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm)
+  Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix[selected_genes,],Group=Group,ncluster=numberofcomponents,method=clustering_algorithm)
   
   Medoids=GDAtools::medoids(as.dist(Disimilarity.fixed), Disimmilarity.Results$Clustering.results.item$clustering)
   Medoids=names(Disimmilarity.Results$Clustering.results.item$clustering)[Medoids]
@@ -94,12 +95,18 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,cluste
     ICAResults=ParaICA(CountMatrix = Matrix,faster_whiten =  temp,numberofcomponents = i,iteration=iteration,numberofcores = numberofcores,...)
     Signature.Matrix=ICAResults$Signature.Matrix
     Affiliation.Matrix=ICAResults$Affiliation.Matrix
-    correlation=WGCNA::adjacency(as.matrix(Signature.Matrix),power = 1)
+    
+    gene_variance=matrixStats::rowVars(Signature.Matrix,useNames = T)
+    gene_variance=gene_variance[order(gene_variance,decreasing = T)]
+    selected_genes=names(gene_variance)[seq(1,kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
+    
+    
+    correlation=WGCNA::adjacency(as.matrix(Signature.Matrix[selected_genes,]),power = 1)
     Disimilarity.fixed=1-abs(correlation)
     Disimmilarity.Results=list()
     Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Signature.Matrix)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix,Group=Group,ncluster=i,method=clustering_algorithm)
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix[selected_genes,],Group=Group,ncluster=i,method=clustering_algorithm)
     a=Cluster_Stability_Calculation(abs(correlation),Clustering_identity = Disimmilarity.Results$Clustering.results$clustering,numberofcores = numberofcores)
     a=data.frame(ICs=rep(i,length(a)),ClusterNumber=names(a),QualityIndex=a)
     b=data.frame(table(Disimmilarity.Results$Clustering.results$clustering))
@@ -136,9 +143,6 @@ PCA.Estimation <- function(Matrix=NULL) {
   PCA=prcomp(t(Matrix),center=F,scale.=F)
   PCA.summary=summary(PCA)
   PCA.candidates=PCA.summary$importance[1,][order(PCA.summary$importance[1,],decreasing = T)]
-  point=diff(smooth(PCA.candidates))*(-1)
-  point=which(point>=mean(point[point>0]))
-  point=point[point<=0.5*ncol(Matrix)]
   Results$ElbowPoint=kneedle(seq(1,length(PCA.candidates)),y = PCA.candidates)[1]
   
   plot_data=data.frame(index=seq(1,length(PCA.candidates)),stdev=PCA.candidates)

@@ -1,0 +1,69 @@
+---
+title: "Introduction"
+author:
+  - name: Zhaorong Li
+    affiliation:
+    - Boston University
+
+output:
+  html_document:
+    self_contained: true
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    code_folding: show
+package: "`r packageVersion('decoupleR')`"
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r chunk_setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+
+bib <- list(
+    fgsea = citation("fgsea")[1],
+    ggplot2 = citation("ggplot2")[1],
+    ggpubr = citation("ggpubr")[1]
+)
+
+```
+
+
+
+# Installation
+
+Installing the ICARus package from Github using devtools.
+```{r install from GitHub, eval=FALSE}
+if (!require("devtools")) {install.packages('devtools')}
+if (!require("ICARus")) {devtools::install_github('Zha0rong/ICARus',force = T)}
+```
+
+The following packages are recommended to be installed to explore the results from ICARus.
+
+* fgsea 
+* ggplot2
+* ggpubr
+
+```{r install Recommended Packages, eval=FALSE}
+if (!require("fgsea")) {install.packages('fgsea')}
+if (!require("ggplot2")) {install.packages('ggplot2')}
+if (!require("ggpubr")) {install.packages('ggpubr')}
+```
+
+# Standard workflow
+
+Independent Component Analysis (ICA) can be used to analyze transcriptome data in scenario where there is no definite categorical experiment settings, such as TCGA RNA-Seq dataset, Immgen RNA-Seq dataset and GTEX dataset. ICA can extract biologically meaningful gene expression signatures from the dataset, and these signatures can be associated with phenotypes.
+
+ICA is an unsupervised learning algorithm, which means that the output of the algorithm depends on the parameter being input.
+
+ICARus, standing for "Independent Component Analysis implemented in R with Ultra fast Speed", is a tool to 
+
+
+
+
+
