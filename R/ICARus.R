@@ -36,7 +36,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
 
   Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
   names(Group)=colnames(Signature.Matrix)
-  Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix[selected_genes,],Group=Group,ncluster=numberofcomponents,method=clustering_algorithm)
+  Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm)
   
   Medoids=GDAtools::medoids(as.dist(Disimilarity.fixed), Disimmilarity.Results$Clustering.results.item$clustering)
   Medoids=names(Disimmilarity.Results$Clustering.results.item$clustering)[Medoids]
@@ -108,7 +108,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,cluste
     Disimmilarity.Results=list()
     Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Signature.Matrix)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix[selected_genes,],Group=Group,ncluster=i,method=clustering_algorithm)
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix,Group=Group,ncluster=i,method=clustering_algorithm)
     a=Cluster_Stability_Calculation(abs(correlation),Clustering_identity = Disimmilarity.Results$Clustering.results$clustering,numberofcores = numberofcores)
     a=data.frame(ICs=rep(i,length(a)),ClusterNumber=names(a),QualityIndex=a)
     b=data.frame(table(Disimmilarity.Results$Clustering.results$clustering))
