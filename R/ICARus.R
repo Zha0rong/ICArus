@@ -172,6 +172,7 @@ PCA.Estimation <- function(Matrix=NULL) {
 #' @import doParallel
 #' @import doSNOW
 #' @import foreach
+#' @import kneedle
 #' @importFrom GDAtools medoids
 #' @export
 Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,Signature.Matrix,min_cluster=2,max_cluster=ncol(Disimmilarity)/2,numberofcores=2,...) {
@@ -197,9 +198,13 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
   sils=unlist(x)
   
   silhouettes=data.frame(silhouettes=(sils),resolution=seq(min_cluster,max_cluster))
-  figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouettes)])+ggtitle('Averaged Silhouettes Graph')
+  elbowpoint=kneedle::kneedle(silhouettes$silhouettes*(-1),silhouettes$resolution)[2]
   
-  Clustering.results=cutree(clustering_results,k = min(silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouette)]))
+  #figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouettes)])+ggtitle('Averaged Silhouettes Graph')
+  figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = elbowpoint)+ggtitle('Averaged Silhouettes Graph')
+  
+  #Clustering.results=cutree(clustering_results,k = min(silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouette)]))
+  Clustering.results=cutree(clustering_results,k = elbowpoint)
   
   clustering.results=Clustering.results
   clustering.results=data.frame(clustering.results)
