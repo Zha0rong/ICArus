@@ -199,6 +199,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
   
   silhouettes=data.frame(silhouettes=(sils),resolution=seq(min_cluster,max_cluster))
   elbowpoint=kneedle::kneedle(x=silhouettes$resolution,y=silhouettes$silhouettes)[1]
+  print(kneedle::kneedle(x=silhouettes$resolution,y=silhouettes$silhouettes))
   
   #figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouettes)])+ggtitle('Averaged Silhouettes Graph')
   figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = elbowpoint)+ggtitle('Averaged Silhouettes Graph')
