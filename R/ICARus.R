@@ -59,7 +59,8 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
   return(list(Clustered.Signature.matrix=Clustered.Signature.matrix,
               Clustered.Affiliation.matrix=Clustered.Affiliation.matrix,
               Cluster.Quality=Cluster.Quality,
-              clustering=Disimmilarity.Results$Clustering.results.item$clustering
+              clustering=Disimmilarity.Results$Clustering.results.item$clustering,
+              Disimilarity.fixed=Disimilarity.fixed
               ))
 }
 
