@@ -40,7 +40,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   ElbowPoint=kneedle(seq(1,length(variance)),y = variance)[1]
   
   PCA=prcomp(t(Signature.Matrix[names(variance)[seq(1,ElbowPoint)],]),center=F,scale.=F)
-  cumulative=PCA.candidates=PCA$importance[3,]
+  cumulative=summary(PCA)$importance[3,]
   ElbowPoint=kneedle(seq(1,length(cumulative)),y = cumulative)[1]
   print(ElbowPoint)
   PCA.space=t(PCA$x)
