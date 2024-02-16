@@ -49,14 +49,14 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     gene_variance=matrixStats::rowVars(Corrected.Signature.Matrix,useNames = T)
     gene_variance=gene_variance[order(gene_variance,decreasing = T)]
     selected_genes=names(gene_variance)[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
-    distance=parallelDist::parallelDist(t(Corrected.Signature.Matrix[selected_genes,]))
+    distance=parallelDist::parallelDist(t(Corrected.Signature.Matrix))
     correlation=WGCNA::adjacency(as.matrix(Corrected.Signature.Matrix[selected_genes,]),power = 1)
     
     Disimilarity.fixed=as.matrix(distance)
     Disimmilarity.Results=list()
     Group=stringr::str_split_fixed(colnames(Corrected.Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Corrected.Signature.Matrix)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Corrected.Signature.Matrix[selected_genes,],Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Corrected.Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
     
   }
 

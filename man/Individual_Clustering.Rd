@@ -4,7 +4,13 @@
 \alias{Individual_Clustering}
 \title{Individual_Clustering}
 \usage{
-Individual_Clustering(Matrix, Group, ncluster, method = "complete")
+Individual_Clustering(
+  Matrix,
+  Group,
+  ncluster,
+  distance_measure = c("pearson", "euclidean"),
+  method = "complete"
+)
 }
 \description{
 This function cluster the ICA results from iterations
