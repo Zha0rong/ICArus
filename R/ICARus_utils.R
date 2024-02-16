@@ -337,7 +337,7 @@ Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pear
       temp=WGCNA::adjacency(as.matrix(temp),power = 1)
       temp=1-abs(temp)
     } else if (distance_measure=='euclidean') {
-      temp=dist(t(temp))
+      temp=as.matrix(dist(t(temp)))
     }
 
     clustering=hclust(as.dist(temp),method = method)
