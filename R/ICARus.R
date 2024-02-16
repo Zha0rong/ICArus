@@ -38,6 +38,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   PCA=prcomp(t(Signature.Matrix),center=F,scale.=F)
   cumulative=PCA.candidates=PCA.summary$importance[3,]
   ElbowPoint=kneedle(seq(1,length(cumulative)),y = cumulative)[1]
+  print(ElbowPoint)
   PCA.space=t(PCA$x)
   PCA.space=PCA.space[seq(1,ElbowPoint),]
   correlation=WGCNA::adjacency(PCA.space,power = 1)
