@@ -34,6 +34,15 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     selected_genes=names(gene_variance)#[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
     correlation=WGCNA::adjacency(as.matrix(Signature.Matrix[selected_genes,]),power = 1)
     Disimilarity.fixed=1-abs(correlation)
+    
+    Disimmilarity.Results=list()
+    
+    Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
+    names(Group)=colnames(Signature.Matrix)
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm)
+    
+    
+    
   } else if (distance_measure=='euclidean') {
     Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Signature.Matrix)
@@ -43,14 +52,14 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     selected_genes=names(gene_variance)[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
     distance=parallelDist::parallelDist(t(Corrected.Signature.Matrix[selected_genes,]))
     Disimilarity.fixed=distance
+    
+    Disimmilarity.Results=list()
+
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Corrected.Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm)
+    
   }
 
-  Disimmilarity.Results=list()
 
-  Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
-  names(Group)=colnames(Signature.Matrix)
-  Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm)
-  
   Medoids=GDAtools::medoids(as.dist(Disimilarity.fixed), Disimmilarity.Results$Clustering.results.item$clustering)
   Medoids=names(Disimmilarity.Results$Clustering.results.item$clustering)[Medoids]
   Clustered.Signature.matrix=Signature.Matrix[,Medoids]
