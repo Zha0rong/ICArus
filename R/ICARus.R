@@ -52,7 +52,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   if (distance_measure=='pearson') {
     
     cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
-    cluster=cutree(numberofcomponents)
+    cluster=cutree(cluster,numberofcomponents)
     Disimmilarity.Results$Clustering.results.item$clustering=cluster
     #Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
     #names(Group)=colnames(PCA.space)
@@ -63,10 +63,10 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     #Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
     #names(Group)=colnames(PCA.space)
     #Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
-    Disimilarity.fixed=parallelDist::parallelDist(t(PCA.space))
+    Disimilarity.fixed=as.matrix(parallelDist::parallelDist(t(PCA.space)))
     
     cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
-    cluster=cutree(numberofcomponents)
+    cluster=cutree(cluster,numberofcomponents)
     Disimmilarity.Results$Clustering.results.item$clustering=cluster
     
   }
