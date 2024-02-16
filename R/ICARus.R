@@ -56,7 +56,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     Disimmilarity.Results=list()
     Group=stringr::str_split_fixed(colnames(Corrected.Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Corrected.Signature.Matrix)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Corrected.Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Corrected.Signature.Matrix[selected_genes,],Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
     
   }
 

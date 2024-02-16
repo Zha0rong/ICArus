@@ -340,9 +340,10 @@ Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pear
     } else if (distance_measure=='euclidean') {
       temp=as.matrix(dist(t(temp)))
     }
-    #clustering=hclust(as.dist(temp),method = method)
-    #clustering=cutree(clustering,k=ncluster)
-    clustering=balanced_clustering(as.dist(temp),K = ncluster)
+    clustering=hclust(as.dist(temp),method = method)
+    clustering=cutree(clustering,k=ncluster)
+    #clustering=balanced_clustering(as.dist(temp),K = ncluster)
+    #print(clustering)
     names(clustering)=c(colnames(selected.matrix),colnames(Matrix[,names(Group)[Group==i]]))
     testing.object=colnames(Matrix[,names(Group)[Group==i]])
     testing.results=c()
