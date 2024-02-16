@@ -349,7 +349,7 @@ Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pear
       ref=names(ref)[names(ref)!=j]
       testing.results=c(testing.results,reference[names(reference)==ref])
     }
-    print(testing.results)
+    print(length(testing.results))
     names(testing.results)=testing.object
     results=c(results,testing.results)
   }
