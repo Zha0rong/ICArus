@@ -47,20 +47,27 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   PCA.space=PCA.space[seq(1,ElbowPoint),]
   correlation=WGCNA::adjacency(PCA.space,power = 1)
   Disimilarity.fixed=1-abs(correlation)
+  Disimmilarity.Results=list()
   
   if (distance_measure=='pearson') {
     
-    Disimmilarity.Results=list()
-    
-    Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
-    names(Group)=colnames(PCA.space)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
+    cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
+    cluster=cutree(numberofcomponents)
+    Disimmilarity.Results$Clustering.results.item$clustering=cluster
+    #Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
+    #names(Group)=colnames(PCA.space)
+    #Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
   } else if (distance_measure=='euclidean') {
 
     Disimmilarity.Results=list()
-    Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
-    names(Group)=colnames(PCA.space)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
+    #Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
+    #names(Group)=colnames(PCA.space)
+    #Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
+    Disimilarity.fixed=parallelDist::parallelDist(t(PCA.space))
+    
+    cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
+    cluster=cutree(numberofcomponents)
+    Disimmilarity.Results$Clustering.results.item$clustering=cluster
     
   }
 
