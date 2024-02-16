@@ -39,11 +39,11 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   cumulative=PCA.candidates=PCA.summary$importance[3,]
   ElbowPoint=kneedle(seq(1,length(cumulative)),y = cumulative)[1]
   PCA.space=t(PCA$x)
-  PCA.space=PCA.space[seq(1,ElbowPoint)]
+  PCA.space=PCA.space[seq(1,ElbowPoint),]
+  correlation=WGCNA::adjacency(PCA.space,power = 1)
+  Disimilarity.fixed=1-abs(correlation)
   
   if (distance_measure=='pearson') {
-    correlation=WGCNA::adjacency(PCA.space,power = 1)
-    Disimilarity.fixed=1-abs(correlation)
     
     Disimmilarity.Results=list()
     
@@ -51,10 +51,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     names(Group)=colnames(PCA.space)
     Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
   } else if (distance_measure=='euclidean') {
-    distance=parallelDist::parallelDist(t(PCA.space),threads = numberofcores)
-    correlation=WGCNA::adjacency(PCA.space,power = 1)
-    
-    Disimilarity.fixed=as.matrix(distance)
+
     Disimmilarity.Results=list()
     Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
     names(Group)=colnames(PCA.space)
