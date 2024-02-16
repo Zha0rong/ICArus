@@ -52,7 +52,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     distance=parallelDist::parallelDist(t(Corrected.Signature.Matrix[selected_genes,]))
     correlation=WGCNA::adjacency(as.matrix(Corrected.Signature.Matrix[selected_genes,]),power = 1)
     
-    Disimilarity.fixed=distance
+    Disimilarity.fixed=as.matrix(distance)
     Disimmilarity.Results=list()
     Group=stringr::str_split_fixed(colnames(Corrected.Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Corrected.Signature.Matrix)
