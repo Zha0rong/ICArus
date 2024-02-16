@@ -47,6 +47,9 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Signature.Matrix)
     Corrected.Signature.Matrix=Direction_correction(Signature.Matrix,Group)
+    rownames(Corrected.Signature.Matrix)=rownames(Signature.Matrix)
+    colnames(Corrected.Signature.Matrix)=colnames(Signature.Matrix)
+    
     gene_variance=matrixStats::rowVars(Corrected.Signature.Matrix,useNames = T)
     gene_variance=gene_variance[order(gene_variance,decreasing = T)]
     selected_genes=names(gene_variance)[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
