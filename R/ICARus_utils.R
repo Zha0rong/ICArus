@@ -339,7 +339,6 @@ Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pear
     } else if (distance_measure=='euclidean') {
       temp=as.matrix(dist(t(temp)))
     }
-
     clustering=hclust(as.dist(temp),method = method)
     clustering=cutree(clustering,k=ncluster)
     testing.object=colnames(Matrix[,names(Group)[Group==i]])
@@ -350,6 +349,7 @@ Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pear
       ref=names(ref)[names(ref)!=j]
       testing.results=c(testing.results,reference[names(reference)==ref])
     }
+    print(testing.results)
     names(testing.results)=testing.object
     results=c(results,testing.results)
   }
