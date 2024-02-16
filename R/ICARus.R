@@ -28,35 +28,37 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 
   Signature.Matrix=as.matrix(ICAResults$Signature.Matrix)
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
+  Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
+  names(Group)=colnames(Signature.Matrix)
+  Corrected.Signature.Matrix=Direction_correction(Signature.Matrix,Group)
+  rownames(Corrected.Signature.Matrix)=rownames(Signature.Matrix)
+  colnames(Corrected.Signature.Matrix)=colnames(Signature.Matrix)
+  Signature.Matrix=Corrected.Signature.Matrix
+  rm(Corrected.Signature.Matrix,Group)
+  PCA=prcomp(t(Signature.Matrix),center=F,scale.=F)
+  cumulative=PCA.candidates=PCA.summary$importance[3,]
+  ElbowPoint=kneedle(seq(1,length(cumulative)),y = cumulative)[1]
+  PCA.space=t(PCA$x)
+  PCA.space=PCA.space[seq(1,ElbowPoint)]
+  
   if (distance_measure=='pearson') {
-    gene_variance=matrixStats::rowVars(Signature.Matrix,useNames = T)
-    gene_variance=gene_variance[order(gene_variance,decreasing = T)]
-    selected_genes=names(gene_variance)#[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
-    correlation=WGCNA::adjacency(as.matrix(Signature.Matrix[selected_genes,]),power = 1)
+    correlation=WGCNA::adjacency(PCA.space,power = 1)
     Disimilarity.fixed=1-abs(correlation)
     
     Disimmilarity.Results=list()
     
-    Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
-    names(Group)=colnames(Signature.Matrix)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
+    Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
+    names(Group)=colnames(PCA.space)
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
   } else if (distance_measure=='euclidean') {
-    Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
-    names(Group)=colnames(Signature.Matrix)
-    Corrected.Signature.Matrix=Direction_correction(Signature.Matrix,Group)
-    rownames(Corrected.Signature.Matrix)=rownames(Signature.Matrix)
-    colnames(Corrected.Signature.Matrix)=colnames(Signature.Matrix)
-    gene_variance=matrixStats::rowVars(Corrected.Signature.Matrix,useNames = T)
-    gene_variance=gene_variance[order(gene_variance,decreasing = T)]
-    selected_genes=names(gene_variance)[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
-    distance=parallelDist::parallelDist(t(Corrected.Signature.Matrix))
-    correlation=WGCNA::adjacency(as.matrix(Corrected.Signature.Matrix[selected_genes,]),power = 1)
+    distance=parallelDist::parallelDist(t(PCA.space),threads = numberofcores)
+    correlation=WGCNA::adjacency(PCA.space,power = 1)
     
     Disimilarity.fixed=as.matrix(distance)
     Disimmilarity.Results=list()
-    Group=stringr::str_split_fixed(colnames(Corrected.Signature.Matrix),pattern = '_',n=2)[,1]
-    names(Group)=colnames(Corrected.Signature.Matrix)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Corrected.Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
+    Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
+    names(Group)=colnames(PCA.space)
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
     
   }
 
