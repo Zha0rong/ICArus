@@ -324,7 +324,7 @@ Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity
 #' @import foreach
 #' @import doParallel
 #' @import doSNOW
-Individual_Clustering <- function(Matrix,Group,ncluster,method='complete') {
+Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pearson','euclidean'),method='complete') {
   selected=sample(unique(Group),1)
   selected.matrix=Matrix[,names(Group)[Group==selected]]
   ncluster=ncluster
@@ -333,8 +333,13 @@ Individual_Clustering <- function(Matrix,Group,ncluster,method='complete') {
   results=reference
   for (i in unique(Group)[unique(Group)!=selected]) {
     temp=cbind(selected.matrix,Matrix[,names(Group)[Group==i]])
-    temp=WGCNA::adjacency(as.matrix(temp),power = 1)
-    temp=1-abs(temp)
+    if (distance_measure=='pearson') {
+      temp=WGCNA::adjacency(as.matrix(temp),power = 1)
+      temp=1-abs(temp)
+    } else if (distance_measure=='euclidean') {
+      temp=dist(t(temp))
+    }
+
     clustering=hclust(as.dist(temp),method = method)
     clustering=cutree(clustering,k=ncluster)
     testing.object=colnames(Matrix[,names(Group)[Group==i]])

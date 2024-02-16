@@ -39,7 +39,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     
     Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Signature.Matrix)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm)
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
   } else if (distance_measure=='euclidean') {
     Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Signature.Matrix)
@@ -56,7 +56,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     Disimmilarity.Results=list()
     Group=stringr::str_split_fixed(colnames(Corrected.Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Corrected.Signature.Matrix)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Corrected.Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm)
+    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=Corrected.Signature.Matrix,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
     
   }
 
