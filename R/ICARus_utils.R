@@ -341,7 +341,7 @@ Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pear
     }
     members=c(rep('Reference',length(names(Group)[Group==selected])),
               rep('Test',length(names(Group)[Group==i])))
-    clustering=hclust(as.dist(temp),method = method,members = table(members))
+    clustering=hclust(as.dist(temp),method = method)
     clustering=cutree(clustering,k=ncluster)
     testing.object=colnames(Matrix[,names(Group)[Group==i]])
     testing.results=c()
