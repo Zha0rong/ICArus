@@ -15,8 +15,9 @@
 #' @import WGCNA
 #' @import Rfast
 #' @import kneedle
+#' @import parallelDist
 #' @export
-ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clustering_algorithm="complete",...) {
+ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm="complete",...) {
 
   WGCNA::enableWGCNAThreads(nThreads = numberofcores)
 
@@ -27,11 +28,23 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
 
   Signature.Matrix=as.matrix(ICAResults$Signature.Matrix)
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
-  gene_variance=matrixStats::rowVars(Signature.Matrix,useNames = T)
-  gene_variance=gene_variance[order(gene_variance,decreasing = T)]
-  selected_genes=names(gene_variance)[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
-  correlation=WGCNA::adjacency(as.matrix(Signature.Matrix[selected_genes,]),power = 1)
-  Disimilarity.fixed=1-abs(correlation)
+  if (distance_measure=='pearson') {
+    gene_variance=matrixStats::rowVars(Signature.Matrix,useNames = T)
+    gene_variance=gene_variance[order(gene_variance,decreasing = T)]
+    selected_genes=names(gene_variance)#[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
+    correlation=WGCNA::adjacency(as.matrix(Signature.Matrix[selected_genes,]),power = 1)
+    Disimilarity.fixed=1-abs(correlation)
+  } else if (distance_measure=='euclidean') {
+    Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
+    names(Group)=colnames(Signature.Matrix)
+    Corrected.Signature.Matrix=Direction_correction(Signature.Matrix,Group)
+    gene_variance=matrixStats::rowVars(Corrected.Signature.Matrix,useNames = T)
+    gene_variance=gene_variance[order(gene_variance,decreasing = T)]
+    selected_genes=names(gene_variance)[seq(1,kneedle::kneedle(seq(1,length(gene_variance)),gene_variance)[1])]
+    distance=parallelDist::parallelDist(t(Corrected.Signature.Matrix[selected_genes,]))
+    Disimilarity.fixed=distance
+  }
+
   Disimmilarity.Results=list()
 
   Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
@@ -83,13 +96,10 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,clust
 ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,clustering_algorithm='complete',...) {
   ICA.Tests.list=list()
   enableWGCNAThreads(nThreads = numberofcores)
-  
-  
   QC.Metrics=data.frame(ICs=parameter_set)
   QC.Metrics$IR=0
   QC.Metrics$MSE=0
   faster_whiten=faster_ICA_whitening(Matrix)
-  
   for (i in parameter_set){
     print(i)
     temp=faster_whiten

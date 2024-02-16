@@ -9,6 +9,7 @@ ICARus(
   numberofcomponents,
   iteration = 100,
   numberofcores = 2,
+  distance_measure = c("pearson", "euclidean"),
   clustering_algorithm = "complete",
   ...
 )

@@ -350,3 +350,31 @@ Individual_Clustering <- function(Matrix,Group,ncluster,method='complete') {
   }
   return(results)
 }
+
+
+
+
+#' Individual_Clustering
+#' @description This function cluster the ICA results from iterations
+#' @import reshape2
+#' @import foreach
+#' @import doParallel
+#' @import doSNOW
+Direction_correction = function (Matrix,Group) {
+  Reference=unique(Group)[1]
+  Reference.Matrix=Matrix[,names(Group)[Group==Reference]]
+  Results=list()
+  for (i in unique(Group)[unique(Group)!=Reference]) {
+    tested.matrix=Matrix[,c(names(Group)[Group==i])]
+    correlation=cor(as.matrix(cbind(tested.matrix,Reference.Matrix)))#WGCNA::adjacency(,power = 1,type = 'signed')
+    correlation=correlation[names(Group)[Group==Reference],c(names(Group)[Group==i])]
+    for (j in names(Group)[Group==i]) {
+      tested.matrix[,j]=tested.matrix[,j]*sign(correlation[,j][abs(correlation[,j])==max(abs(correlation[,j]))])
+    }
+    Results[[i]]=tested.matrix
+  }
+  Results=do.call(cbind,Results)
+  Results=cbind(Reference.Matrix,Results)
+  return(Results)
+}
+
