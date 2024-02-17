@@ -50,22 +50,22 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   if (distance_measure=='pearson') {
     correlation=WGCNA::adjacency(PCA.space,power = 1)
     Disimilarity.fixed=1-abs(correlation)
-    #cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
-    #cluster=cutree(cluster,numberofcomponents)
-    #Disimmilarity.Results$Clustering.results.item$clustering=cluster
-    Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
-    names(Group)=colnames(PCA.space)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
+    cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
+    cluster=cutree(cluster,numberofcomponents)
+    Disimmilarity.Results$Clustering.results.item$clustering=cluster
+    #Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
+    #names(Group)=colnames(PCA.space)
+    #Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
   } else if (distance_measure=='euclidean') {
-    Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
-    names(Group)=colnames(PCA.space)
-    Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
+    #Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
+    #names(Group)=colnames(PCA.space)
+    #Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
     correlation=as.matrix(parallelDist::parallelDist(t(PCA.space)))
     correlation=1/(1+correlation)
     Disimilarity.fixed=1-abs(correlation)
-    #cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
-    #cluster=cutree(cluster,numberofcomponents)
-    #Disimmilarity.Results$Clustering.results.item$clustering=cluster
+    cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
+    cluster=cutree(cluster,numberofcomponents)
+    Disimmilarity.Results$Clustering.results.item$clustering=cluster
     
   }
 
