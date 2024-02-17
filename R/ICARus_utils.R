@@ -342,7 +342,7 @@ Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pear
     }
     #clustering=hclust(as.dist(temp),method = method)
     #clustering=cutree(clustering,k=ncluster)
-    clustering=cluster::pam(as.dist(temp),k = ncluster,diss = T,cluster.only = T,do.swap = T)
+    clustering=cluster::pam(as.dist(temp),k = ncluster,diss = T,cluster.only = T,do.swap = T,medoids = seq(1,length(names(Group)[Group==selected])))
     
     names(clustering)=c(colnames(selected.matrix),colnames(Matrix[,names(Group)[Group==i]]))
     testing.object=colnames(Matrix[,names(Group)[Group==i]])
