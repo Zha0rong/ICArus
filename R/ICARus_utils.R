@@ -324,7 +324,7 @@ Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity
 #' @import foreach
 #' @import doParallel
 #' @import doSNOW
-#' @import cluster
+#' @importFrom cluster pam
 Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pearson','euclidean'),method='complete') {
   selected=sample(unique(Group),1)
   selected.matrix=Matrix[,names(Group)[Group==selected]]
