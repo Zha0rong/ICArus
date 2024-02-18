@@ -318,14 +318,11 @@ Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity
   return(stability_indices)
 }
 
-#' Individual_Clustering
-#' @description This function cluster the ICA results from iterations
-#' @import reshape2
-#' @import foreach
-#' @import doParallel
-#' @import doSNOW
-#' @importFrom cluster pam
-Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pearson','euclidean'),method='complete') {
+#' Individual_Matching
+#' @description This function matches signatures from different iterations using galeShapley.marriageMarket
+#' @importFrom matchingR galeShapley.marriageMarket
+Individual_Matching <- function(Matrix,Group,ncluster) {
+  
   selected=sample(unique(Group),1)
   selected.matrix=Matrix[,names(Group)[Group==selected]]
   ncluster=ncluster
@@ -333,28 +330,12 @@ Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pear
   names(reference)=colnames(selected.matrix)
   results=reference
   for (i in unique(Group)[unique(Group)!=selected]) {
-    temp=cbind(selected.matrix,Matrix[,names(Group)[Group==i]])
-    if (distance_measure=='pearson') {
-      temp=WGCNA::adjacency(as.matrix(temp),power = 1)
-      temp=1-abs(temp)
-    } else if (distance_measure=='euclidean') {
-      temp=as.matrix(dist(t(temp)))
-    }
-    #clustering=hclust(as.dist(temp),method = method)
-    #clustering=cutree(clustering,k=ncluster)
-    clustering=cluster::pam(as.dist(temp),k = ncluster,diss = T,cluster.only = T,do.swap = T,medoids = seq(1,length(names(Group)[Group==selected])))
-    
-    names(clustering)=c(colnames(selected.matrix),colnames(Matrix[,names(Group)[Group==i]]))
-    testing.object=colnames(Matrix[,names(Group)[Group==i]])
-    testing.results=c()
-    for (j in testing.object) {
-      ref=(clustering)[names(clustering)==j]
-      ref=clustering[clustering==ref]
-      ref=names(ref)[names(ref)!=j]
-      testing.results=c(testing.results,reference[names(reference)==ref])
-    }
-    names(testing.results)=testing.object
-    results=c(results,testing.results)
+    match.reference=Matrix[names(Group)[Group==selected],names(Group)[Group==i]]
+    match.test=t(match.reference)
+    match=matchingR::galeShapley.marriageMarket(match.reference,match.test)
+    match=as.integer(match$proposals)
+    names(match)=colnames(match.reference)
+    results=c(results,match)
   }
   return(results)
 }
@@ -362,8 +343,9 @@ Individual_Clustering <- function(Matrix,Group,ncluster,distance_measure=c('pear
 
 
 
-#' Individual_Clustering
-#' @description This function cluster the ICA results from iterations
+
+#' Direction_correction
+#' @description This function is used to correct the direction of the signature from different runs.
 #' @import reshape2
 #' @import foreach
 #' @import doParallel

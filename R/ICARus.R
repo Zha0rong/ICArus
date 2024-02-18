@@ -17,8 +17,11 @@
 #' @import kneedle
 #' @import parallelDist
 #' @export
-ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm="complete",...) {
+ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
   distance_measure=match.arg(distance_measure)
+  clustering_algorithm=match.arg(clustering_algorithm)
+  Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
+  
   WGCNA::enableWGCNAThreads(nThreads = numberofcores)
 
   faster_whiten=faster_ICA_whitening(Matrix)
@@ -50,22 +53,29 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   if (distance_measure=='pearson') {
     correlation=WGCNA::adjacency(PCA.space,power = 1)
     Disimilarity.fixed=1-abs(correlation)
-    cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
-    cluster=cutree(cluster,numberofcomponents)
-    Disimmilarity.Results$Clustering.results.item$clustering=cluster
-    #Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
-    #names(Group)=colnames(PCA.space)
-    #Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
-  } else if (distance_measure=='euclidean') {
+    if (clustering_algorithm=='Hierarchical') {
+      cluster=hclust(as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
+      cluster=cutree(cluster,numberofcomponents)
+      Disimmilarity.Results$Clustering.results.item$clustering=cluster
+    } else if (clustering_algorithm=='MatchMaking') {
+      Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
+      names(Group)=colnames(PCA.space)
+      Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(abs(correlation),Group=Group,ncluster=numberofcomponents)
+    }
+    } else if (distance_measure=='euclidean') {
     #Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
     #names(Group)=colnames(PCA.space)
     #Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
     correlation=as.matrix(parallelDist::parallelDist(t(PCA.space)))
-    Disimilarity.fixed=1-abs(1/(1+correlation))
-    cluster=hclust(as.dist(correlation),method = clustering_algorithm)
-    cluster=cutree(cluster,numberofcomponents)
-    Disimmilarity.Results$Clustering.results.item$clustering=cluster
-    
+    if (clustering_algorithm=='Hierarchical') {
+      cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)
+      cluster=cutree(cluster,numberofcomponents)
+      Disimmilarity.Results$Clustering.results.item$clustering=cluster
+    } else if (clustering_algorithm=='MatchMaking') {
+      Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
+      names(Group)=colnames(PCA.space)
+      Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(1/(1+(correlation)),Group=Group,ncluster=numberofcomponents)
+    }
   }
 
 
@@ -77,7 +87,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   colnames(Clustered.Signature.matrix)=seq(1,ncol(Clustered.Signature.matrix))
   colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
   colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
-  a=Cluster_Stability_Calculation(abs(1/(1+correlation)),Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
+  a=Cluster_Stability_Calculation(ifelse(distance_measure=='pearson',yes=abs(correlation),no=1/(1+(correlation))),Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
   a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
   rownames(b)=b$Var1

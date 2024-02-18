@@ -2,10 +2,10 @@
 % Please edit documentation in R/ICARus_utils.R
 \name{Direction_correction}
 \alias{Direction_correction}
-\title{Individual_Clustering}
+\title{Direction_correction}
 \usage{
 Direction_correction(Matrix, Group)
 }
 \description{
-This function cluster the ICA results from iterations
+This function is used to correct the direction of the signature from different runs.
 }
