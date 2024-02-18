@@ -46,12 +46,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   print(cutoff)
   
   PCA=prcomp(t(Signature.Matrix[names(variance)[seq(1,cutoff)],]),center=F,scale.=F)
-  cumulative=summary(PCA)$importance[3,]
-  print(cumulative)
-  
-  cutoff=which(cumulative<0.9)
   PCA.space=t(PCA$x)
-  PCA.space=PCA.space[seq(1,max(cutoff)),]
   Disimmilarity.Results=list()
   
   if (distance_measure=='pearson') {
