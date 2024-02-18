@@ -54,7 +54,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     correlation=WGCNA::adjacency(PCA.space,power = 1)
     Disimilarity.fixed=1-abs(correlation)
     if (clustering_algorithm=='Hierarchical') {
-      cluster=hclust(d = as.dist(1-abs(correlation)),method = Hierarchical.clustering.method)
+      cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
       cluster=cutree(cluster,numberofcomponents)
       Disimmilarity.Results$Clustering.results.item$clustering=cluster
       print((Disimmilarity.Results$Clustering.results.item$clustering))
@@ -93,9 +93,6 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
   colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
   correlation=WGCNA::adjacency(PCA.space,power = 1)
-  print(sum(names(Disimmilarity.Results$Clustering.results.item$clustering)%in%rownames(correlation)))
-  print(sum(names(Disimmilarity.Results$Clustering.results.item$clustering)%in%colnames(correlation)))
-  
   a=Cluster_Stability_Calculation(correlation,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
   a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
@@ -110,7 +107,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
               Clustered.Affiliation.matrix=Clustered.Affiliation.matrix,
               Cluster.Quality=Cluster.Quality,
               clustering=Disimmilarity.Results$Clustering.results.item$clustering,
-              Disimilarity.fixed=Disimilarity.fixed
+              Disimilarity.fixed=correlation
               ))
 }
 
