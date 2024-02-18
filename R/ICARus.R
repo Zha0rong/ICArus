@@ -43,7 +43,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   Disimmilarity.Results=list()
   
   if (distance_measure=='pearson') {
-    correlation=WGCNA::adjacency(Signature.Matrix[names(variance)[seq(1,genes.to.use)],],power = 1)
+    correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
     Disimilarity.fixed=1-abs(correlation)
     if (clustering_algorithm=='Hierarchical') {
       cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
@@ -56,7 +56,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 
     }
     } else if (distance_measure=='euclidean') {
-      correlation=as.matrix(parallelDist::parallelDist(t(Signature.Matrix[names(variance)[seq(1,genes.to.use)],])))
+      correlation=as.matrix(parallelDist::parallelDist(t(Signature.Matrix)))
       Disimilarity.fixed=correlation
     if (clustering_algorithm=='Hierarchical') {
       cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)
