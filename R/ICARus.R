@@ -92,8 +92,11 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   colnames(Clustered.Signature.matrix)=seq(1,ncol(Clustered.Signature.matrix))
   colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
   colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
-  a=Cluster_Stability_Calculation(ifelse(distance_measure=='pearson',yes=abs(as.matrix(correlation)),no=1/(1+(as.matrix(correlation))))
-                                  ,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
+  correlation=WGCNA::adjacency(PCA.space,power = 1)
+  print(sum(names(Disimmilarity.Results$Clustering.results.item$clustering)%in%rownames(correlation)))
+  print(sum(names(Disimmilarity.Results$Clustering.results.item$clustering)%in%colnames(correlation)))
+  
+  a=Cluster_Stability_Calculation(correlation,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
   a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
   rownames(b)=b$Var1
