@@ -77,7 +77,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   colnames(Clustered.Signature.matrix)=seq(1,ncol(Clustered.Signature.matrix))
   colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
   colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
-  a=Cluster_Stability_Calculation(abs(correlation),Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
+  a=Cluster_Stability_Calculation(abs(1-(1/(1+correlation))),Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
   a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
   rownames(b)=b$Var1
