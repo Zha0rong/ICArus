@@ -52,6 +52,9 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     }
     } else if (distance_measure=='euclidean') {
       correlation=as.matrix(Rfast::Dist(t(Signature.Matrix),method = 'euclidean'))
+      colnames(correlation)=colnames(Signature.Matrix)
+      rownames(correlation)=colnames(Signature.Matrix)
+      
       Disimilarity.fixed=correlation
     if (clustering_algorithm=='Hierarchical') {
       cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)
