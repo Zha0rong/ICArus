@@ -188,7 +188,7 @@ PCA.Estimation <- function(Matrix=NULL) {
   Results=list()
   PCA=prcomp(t(Matrix),center=F,scale.=F)
   PCA.summary=summary(PCA)
-  PCA.candidates=PCA.summary$importance[1,][order(PCA.summary$importance[1,],decreasing = T)]
+  PCA.candidates=PCA.summary$importance[1,]
   Results$ElbowPoint=kneedle(seq(1,length(PCA.candidates)),y = PCA.candidates)[1]
   
   plot_data=data.frame(index=seq(1,length(PCA.candidates)),stdev=PCA.candidates)
