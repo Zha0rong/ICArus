@@ -15,7 +15,6 @@
 #' @import WGCNA
 #' @import Rfast
 #' @import kneedle
-#' @import parallelDist
 #' @export
 ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
   distance_measure=match.arg(distance_measure)
@@ -36,10 +35,6 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   Corrected=Direction_correction(Signature.Matrix,Affiliation.Matrix,Group)
   Signature.Matrix=Corrected$Results.S
   Affiliation.Matrix=Corrected$Results.A
-  variance=matrixStats::rowVars(Signature.Matrix,useNames = T)
-  variance=variance[order(variance,decreasing = T)]
-  genes.to.use=kneedle::kneedle(seq(1,length(variance)),variance)[1]
-  print(genes.to.use)
   Disimmilarity.Results=list()
   
   if (distance_measure=='pearson') {
@@ -56,7 +51,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 
     }
     } else if (distance_measure=='euclidean') {
-      correlation=as.matrix(parallelDist::parallelDist(t(Signature.Matrix)))
+      correlation=as.matrix(Rfast::Dist(t(Signature.Matrix),method = 'euclidean'))
       Disimilarity.fixed=correlation
     if (clustering_algorithm=='Hierarchical') {
       cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)

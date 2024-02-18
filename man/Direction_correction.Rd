@@ -4,7 +4,7 @@
 \alias{Direction_correction}
 \title{Direction_correction}
 \usage{
-Direction_correction(Matrix, Group)
+Direction_correction(Signature.Matrix, Affiliation.Matrix, Group)
 }
 \description{
 This function is used to correct the direction of the signature from different runs.
