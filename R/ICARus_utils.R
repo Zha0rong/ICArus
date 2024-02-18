@@ -350,21 +350,35 @@ Individual_Matching <- function(Matrix,Group,ncluster) {
 #' @import foreach
 #' @import doParallel
 #' @import doSNOW
-Direction_correction = function (Matrix,Group) {
+Direction_correction = function (Signature.Matrix,Affiliation.Matrix,Group) {
   Reference=unique(Group)[1]
-  Reference.Matrix=Matrix[,names(Group)[Group==Reference]]
-  Results=list()
+  Reference.Matrix.A=Affiliation.Matrix[,names(Group)[Group==Reference]]
+  Reference.Matrix.S=Signature.Matrix[,names(Group)[Group==Reference]]
+  
+  Results.A=list()
+  Results.S=list()
   for (i in unique(Group)[unique(Group)!=Reference]) {
-    tested.matrix=Matrix[,c(names(Group)[Group==i])]
-    correlation=cor(as.matrix(cbind(tested.matrix,Reference.Matrix)))#WGCNA::adjacency(,power = 1,type = 'signed')
+    tested.matrix.A=Affiliation.Matrix[,c(names(Group)[Group==i])]
+    tested.matrix.S=Signature.Matrix[,c(names(Group)[Group==i])]
+    
+    correlation=cor(as.matrix(cbind(tested.matrix.S,Reference.Matrix.S)))#WGCNA::adjacency(,power = 1,type = 'signed')
     correlation=correlation[names(Group)[Group==Reference],c(names(Group)[Group==i])]
     for (j in names(Group)[Group==i]) {
-      tested.matrix[,j]=tested.matrix[,j]*sign(correlation[,j][abs(correlation[,j])==max(abs(correlation[,j]))])
+      tested.matrix.A[,j]=tested.matrix.A[,j]*sign(correlation[,j][abs(correlation[,j])==max(abs(correlation[,j]))])
+      tested.matrix.S[,j]=tested.matrix.S[,j]*sign(correlation[,j][abs(correlation[,j])==max(abs(correlation[,j]))])
+      
     }
-    Results[[i]]=tested.matrix
+    Results.A[[i]]=tested.matrix.A
+    Results.S[[i]]=tested.matrix.S
+    
   }
-  Results=do.call(cbind,Results)
-  Results=cbind(Reference.Matrix,Results)
-  return(Results)
+  Results.A=do.call(cbind,Results.A)
+  Results.S=do.call(cbind,Results.S)
+  
+  Results.A=cbind(Reference.Matrix.A,Results.A)
+  Results.S=cbind(Reference.Matrix.S,Results.S)
+  
+  return(list(Results.A=Results.A,
+              Results.S=Results.S))
 }
 

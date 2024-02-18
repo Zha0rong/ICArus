@@ -33,20 +33,19 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
   Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
   names(Group)=colnames(Signature.Matrix)
-  Corrected.Signature.Matrix=Direction_correction(Signature.Matrix,Group)
-  rownames(Corrected.Signature.Matrix)=rownames(Signature.Matrix)
-  colnames(Corrected.Signature.Matrix)=colnames(Signature.Matrix)
-  Signature.Matrix=Corrected.Signature.Matrix
-  rm(Corrected.Signature.Matrix,Group)
+  Corrected=Direction_correction(Signature.Matrix,Affiliation.Matrix,Group)
+  Signature.Matrix=Corrected$Results.S
+  Affiliation.Matrix=Corrected$Results.A
   variance=matrixStats::rowVars(Signature.Matrix,useNames = T)
   variance=variance[order(variance,decreasing = T)]
-  cutoff=((diff(variance))*(-1))
-  cutoff=which(cutoff>mean(cutoff))
-  cutoff=max(cutoff)+1
-  print(cutoff)
+  genes.to.use=kneedle::kneedle(seq(1,length(variance)),variance)[1]
+  print(genes.to.use)
+  PCA=prcomp(t(Signature.Matrix[names(variance)[seq(1,genes.to.use)],]),center=T,scale.=F)
+  PCs.to.use=summary(PCA)$importance[1,]
+  PCs.to.use=kneedle::kneedle(seq(1,length(PCs.to.use)),PCs.to.use)[1]
+  print(PCs.to.use)
   
-  PCA=prcomp(t(Signature.Matrix[names(variance)[seq(1,cutoff)],]),center=F,scale.=F)
-  PCA.space=t(PCA$x)
+  PCA.space=t(PCA$x[,seq(1,PCs.to.use)])
   Disimmilarity.Results=list()
   
   if (distance_measure=='pearson') {
