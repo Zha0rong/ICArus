@@ -57,12 +57,12 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
       cluster=hclust(as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
       cluster=cutree(cluster,numberofcomponents)
       Disimmilarity.Results$Clustering.results.item$clustering=cluster
-      print(Disimmilarity.Results$Clustering.results.item$clustering)
+      print(table(Disimmilarity.Results$Clustering.results.item$clustering))
     } else if (clustering_algorithm=='MatchMaking') {
       Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
       names(Group)=colnames(PCA.space)
       Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(abs(correlation),Group=Group,ncluster=numberofcomponents)
-      print(Disimmilarity.Results$Clustering.results.item$clustering)
+      print(table(Disimmilarity.Results$Clustering.results.item$clustering))
       
     }
     } else if (distance_measure=='euclidean') {
@@ -72,13 +72,13 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
       cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)
       cluster=cutree(cluster,numberofcomponents)
       Disimmilarity.Results$Clustering.results.item$clustering=cluster
-      print(Disimmilarity.Results$Clustering.results.item$clustering)
+      print(table(Disimmilarity.Results$Clustering.results.item$clustering))
       
     } else if (clustering_algorithm=='MatchMaking') {
       Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
       names(Group)=colnames(PCA.space)
       Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(1/(1+(correlation)),Group=Group,ncluster=numberofcomponents)
-      print(Disimmilarity.Results$Clustering.results.item$clustering)
+      print(table(Disimmilarity.Results$Clustering.results.item$clustering))
       
     }
   }
