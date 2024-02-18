@@ -40,16 +40,10 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   variance=variance[order(variance,decreasing = T)]
   genes.to.use=kneedle::kneedle(seq(1,length(variance)),variance)[1]
   print(genes.to.use)
-  PCA=prcomp(t(Signature.Matrix[names(variance)[seq(1,genes.to.use)],]),center=T,scale.=F)
-  PCs.to.use=summary(PCA)$importance[1,]
-  PCs.to.use=kneedle::kneedle(seq(1,length(PCs.to.use)),PCs.to.use)[1]
-  print(PCs.to.use)
-  
-  PCA.space=t(PCA$x[,seq(1,PCs.to.use)])
   Disimmilarity.Results=list()
   
   if (distance_measure=='pearson') {
-    correlation=WGCNA::adjacency(PCA.space,power = 1)
+    correlation=WGCNA::adjacency(Signature.Matrix[names(variance)[seq(1,genes.to.use)],],power = 1)
     Disimilarity.fixed=1-abs(correlation)
     if (clustering_algorithm=='Hierarchical') {
       cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
@@ -62,7 +56,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 
     }
     } else if (distance_measure=='euclidean') {
-      correlation=as.matrix(parallelDist::parallelDist(t(PCA.space)))
+      correlation=as.matrix(parallelDist::parallelDist(t(Signature.Matrix[names(variance)[seq(1,genes.to.use)],])))
       Disimilarity.fixed=correlation
     if (clustering_algorithm=='Hierarchical') {
       cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)
@@ -85,7 +79,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   colnames(Clustered.Signature.matrix)=seq(1,ncol(Clustered.Signature.matrix))
   colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
   colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
-  correlation=WGCNA::adjacency(PCA.space,power = 1)
+  correlation=WGCNA::adjacency(Signature.Matrix[names(variance)[seq(1,genes.to.use)],],power = 1)
   a=Cluster_Stability_Calculation(correlation,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
   a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
