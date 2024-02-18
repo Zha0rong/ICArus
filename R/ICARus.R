@@ -46,11 +46,9 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   print(cutoff)
   
   PCA=prcomp(t(Signature.Matrix[names(variance)[seq(1,cutoff)],]),center=F,scale.=F)
-  cumulative=summary(PCA)$importance[1,]
-  ElbowPoint=kneedle(seq(1,length(cumulative)),y = cumulative)[1]+1
-  print(ElbowPoint)
+  cumulative=summary(PCA)$importance[3,]
   PCA.space=t(PCA$x)
-  PCA.space=PCA.space[seq(1,ElbowPoint),]
+  PCA.space=PCA.space[seq(1,max(which(cumulative<0.9))),]
 
   Disimmilarity.Results=list()
   
