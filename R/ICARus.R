@@ -79,7 +79,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   colnames(Clustered.Signature.matrix)=seq(1,ncol(Clustered.Signature.matrix))
   colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
   colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
-  correlation=WGCNA::adjacency(Signature.Matrix[names(variance)[seq(1,genes.to.use)],],power = 1)
+  correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
   a=Cluster_Stability_Calculation(correlation,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
   a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
