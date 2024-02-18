@@ -54,7 +54,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     correlation=WGCNA::adjacency(PCA.space,power = 1)
     Disimilarity.fixed=1-abs(correlation)
     if (clustering_algorithm=='Hierarchical') {
-      cluster=hclust(1-abs(correlation),method = Hierarchical.clustering.method)
+      cluster=hclust(d = as.dist(1-abs(correlation)),method = Hierarchical.clustering.method)
       cluster=cutree(cluster,numberofcomponents)
       Disimmilarity.Results$Clustering.results.item$clustering=cluster
       print((Disimmilarity.Results$Clustering.results.item$clustering))
