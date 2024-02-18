@@ -61,9 +61,8 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
     #names(Group)=colnames(PCA.space)
     #Disimmilarity.Results$Clustering.results.item$clustering=Individual_Clustering(Matrix=PCA.space,Group=Group,ncluster=numberofcomponents,method=clustering_algorithm,distance_measure=distance_measure)
     correlation=as.matrix(parallelDist::parallelDist(t(PCA.space)))
-    correlation=1/(1+correlation)
-    Disimilarity.fixed=1-abs(correlation)
-    cluster=hclust(as.dist(Disimilarity.fixed),method = clustering_algorithm)
+    Disimilarity.fixed=1-(1/(1+correlation))
+    cluster=hclust(as.dist(correlation),method = clustering_algorithm)
     cluster=cutree(cluster,numberofcomponents)
     Disimmilarity.Results$Clustering.results.item$clustering=cluster
     
