@@ -43,9 +43,12 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   cutoff=((diff(variance))*(-1))
   cutoff=which(cutoff>mean(cutoff))
   cutoff=max(cutoff)+1
+  print(cutoff)
+  
   PCA=prcomp(t(Signature.Matrix[names(variance)[seq(1,cutoff)],]),center=F,scale.=F)
   cumulative=summary(PCA)$importance[3,]
   ElbowPoint=kneedle(seq(1,length(cumulative)),y = cumulative)[1]
+  print(ElbowPoint)
   PCA.space=t(PCA$x)
   PCA.space=PCA.space[seq(1,ElbowPoint),]
 
