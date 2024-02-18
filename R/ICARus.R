@@ -50,8 +50,8 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
       cluster=cutree(cluster,numberofcomponents)
       Disimmilarity.Results$Clustering.results.item$clustering=cluster
     } else if (clustering_algorithm=='MatchMaking') {
-      Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
-      names(Group)=colnames(PCA.space)
+      Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
+      names(Group)=colnames(Signature.Matrix)
       Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(abs(correlation),Group=Group,ncluster=numberofcomponents)
 
     }
@@ -64,8 +64,8 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
       Disimmilarity.Results$Clustering.results.item$clustering=cluster
 
     } else if (clustering_algorithm=='MatchMaking') {
-      Group=stringr::str_split_fixed(colnames(PCA.space),pattern = '_',n=2)[,1]
-      names(Group)=colnames(PCA.space)
+      Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
+      names(Group)=colnames(Signature.Matrix)
       Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(1/(1+(correlation)),Group=Group,ncluster=numberofcomponents)
     }
   }
