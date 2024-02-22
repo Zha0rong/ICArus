@@ -7,7 +7,9 @@
 #' @param numberofcomponents Number of independent component to compute, must be an integer larger than 1.
 #' @param iteration The number of iterations of ICA to be run, default is 100.
 #' @param numberofcores Number of cores to use. The default is 2.
-#' @param clustering_algorithm The hierarchical clustering algorithm for clustering the independent component analysis. Default is 'complete'.
+#' @param clustering_algorithm Choose which clustering algorithm to use. Currently the pipeline supports Hierarchical clustering ('Hierarchical') and a clustering method based on Gale Shapely Algorithm ('MatchMaking'). The default is 'Hierarchical'.
+#' @param distance_measure Choose which distance measurement to use for signatures Currently the pipeline supports pearson correlation coefficient ('pearson') and euclidean distance ('euclidean'). The default is 'pearson'.
+#' @param Hierarchical.clustering.method Choose which hierarchical clustering algorithm to use. The default is 'ward.D2'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @importFrom GDAtools medoids
 #' @import coop
