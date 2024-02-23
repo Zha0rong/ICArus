@@ -361,7 +361,7 @@ Direction_correction = function (Signature.Matrix,Affiliation.Matrix,Group) {
     tested.matrix.A=Affiliation.Matrix[,c(names(Group)[Group==i])]
     tested.matrix.S=Signature.Matrix[,c(names(Group)[Group==i])]
     
-    correlation=cor(as.matrix(cbind(tested.matrix.S,Reference.Matrix.S)))#WGCNA::adjacency(,power = 1,type = 'signed')
+    correlation=cor(as.matrix(cbind(tested.matrix.S,Reference.Matrix.S)))
     correlation=correlation[names(Group)[Group==Reference],c(names(Group)[Group==i])]
     for (j in names(Group)[Group==i]) {
       tested.matrix.A[,j]=tested.matrix.A[,j]*sign(correlation[,j][abs(correlation[,j])==max(abs(correlation[,j]))])
