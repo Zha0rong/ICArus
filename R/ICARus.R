@@ -131,7 +131,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
     ICAResults=ParaICA(CountMatrix = Matrix,faster_whiten =  temp,numberofcomponents = i,iteration=iteration,numberofcores = numberofcores,...)
     Signature.Matrix=ICAResults$Signature.Matrix
     Affiliation.Matrix=ICAResults$Affiliation.Matrix
-    
+    Disimmilarity.Results=list()
     Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
     names(Group)=colnames(Signature.Matrix)
     Corrected=Direction_correction(Signature.Matrix,Affiliation.Matrix,Group)
