@@ -390,7 +390,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   }
   if (length(names(Filtered.Results))<(numbers_of_parameter_for_reproducibility_test/2)) {
     print('There is not enough signatures pass quality index threshold. Please increase the parameter upperbound, lower the parameter lowerbound and lower the parameter quality.index.threshold')
-    stop()
+    exit()
   }
     
   Clustered.Signature.matrix=list()
