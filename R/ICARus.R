@@ -270,8 +270,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
   
   silhouettes=data.frame(silhouettes=(sils),resolution=seq(min_cluster,max_cluster))
   elbowpoint=kneedle::kneedle(x=silhouettes$resolution,y=silhouettes$silhouettes)[1]
-  print(kneedle::kneedle(x=silhouettes$resolution,y=silhouettes$silhouettes))
-  
+
   #figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouettes)])+ggtitle('Averaged Silhouettes Graph')
   figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = elbowpoint)+ggtitle('Averaged Silhouettes Graph')
   
@@ -287,7 +286,6 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
                             Clustering.results)
   
   Medoids=names(Clustering.results)[Medoids]
-  print(Medoids)
   Clustered.Signature.matrix=Signature.Matrix[,Medoids]
   Clustered.Affiliation.matrix=Affiliation.Matrix[,Medoids]
   
@@ -369,7 +367,6 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   for (i in seq(optimal,optimal+numbers_of_parameter_for_reproducibility_test)) {
     ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,iteration = iteration,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,distance_measure = distance_measure,Hierarchical.clustering.method = Hierarchical.clustering.method,tol=tolerance,maxit=max.iteration)
     Results[[paste0('IC.',i)]]=ICAResults
-    print(i)
     rm(ICAResults)
   }
   Overall.Results[['Raw.Results']]=Results
@@ -391,7 +388,6 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
         colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
       }
       Clustered.Signature.matrix[[paste0('IC.',i)]]=temp
-      print(i)
     }
     
     rm(temp,temp.QC)
@@ -415,7 +411,6 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
         colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
       }
       Clustered.Affiliation.matrix[[paste0('IC.',i)]]=temp
-      print(i)
     }
     rm(temp,temp.QC)
   }
