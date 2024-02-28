@@ -431,7 +431,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   
   
   a=Cluster_Stability_Calculation(correlation,Clustering_identity = Reproducibility.clustering$Clustering.results,numberofcores = numberofcores)
-  a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
+  a=data.frame(ICs=rep(0,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Reproducibility.clustering$Clustering.results))
   rownames(b)=b$Var1
   colnames(b)=c('ClusterNumber','SignatureNumber')
