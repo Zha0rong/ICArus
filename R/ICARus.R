@@ -366,7 +366,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   
   Results=list()
   #devtools::install_github('Zha0rong/ICARus')
-  for (i in seq(optimal,optimal+number_of_parameter_for_iteration)) {
+  for (i in seq(optimal,optimal+numbers_of_parameter_for_reproducibility_test)) {
     ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,iteration = iteration,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,distance_measure = distance_measure,Hierarchical.clustering.method = Hierarchical.clustering.method,tol=tolerance,maxit=max.iteration)
     Results[[paste0('IC.',i)]]=ICAResults
     print(i)
@@ -376,7 +376,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   
   Clustered.Signature.matrix=list()
   
-  for (i in seq(optimal,optimal+number_of_parameter_for_iteration)) {
+  for (i in seq(optimal,optimal+numbers_of_parameter_for_reproducibility_test)) {
     temp=Results[[paste0('IC.',i)]]$Clustered.Signature.matrix
     temp.QC=Results[[paste0('IC.',i)]]$Cluster.Quality
     if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])>0) {
@@ -399,7 +399,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   
   Clustered.Affiliation.matrix=list()
   
-  for (i in seq(optimal,optimal+number_of_parameter_for_iteration)) {
+  for (i in seq(optimal,optimal+numbers_of_parameter_for_reproducibility_test)) {
     temp=Results[[paste0('IC.',i)]]$Clustered.Affiliation.matrix
     temp.QC=Results[[paste0('IC.',i)]]$Cluster.Quality
     if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])>0) {
