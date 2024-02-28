@@ -398,11 +398,11 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   for (run in names(Filtered.Results)) {
     Run=Filtered.Results[[run]]
     CS=Run$Clustered.Signature.matrix
-    colnames(CS)=paste0(paste0('IC.',i),'.',colnames(CS))
+    colnames(CS)=paste0(run,'.',colnames(CS))
     Clustered.Signature.matrix[[run]]=CS
     
     CA=Run$Clustered.Signature.matrix
-    colnames(CA)=paste0(paste0('IC.',i),'.',colnames(CA))
+    colnames(CA)=paste0(run,'.',colnames(CA))
     Clustered.Affiliation.matrix[[run]]=CA
   }
   Clustered.Signature.matrix=do.call(cbind,Clustered.Signature.matrix)
