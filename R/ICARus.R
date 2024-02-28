@@ -389,8 +389,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
     }
   }
   if (length(names(Filtered.Results))<(numbers_of_parameter_for_reproducibility_test/2)) {
-    exit('There is not enough signatures pass quality index threshold. 
-         Please increase the parameter upperbound, lower the parameter lowerbound and lower the parameter quality.index.threshold')
+    stop('There is not enough signatures pass quality index threshold. Please increase the max.iteration (10000 is recommended) and decrease the tolerance (1e-6 at least is recommended) for fastICA.')
   }
     
   Clustered.Signature.matrix=list()
