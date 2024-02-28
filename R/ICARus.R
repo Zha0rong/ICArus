@@ -370,50 +370,43 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
     rm(ICAResults)
   }
   Overall.Results[['Raw.Results']]=Results
-  
-  
-  Clustered.Signature.matrix=list()
-  
-  for (i in seq(optimal,optimal+numbers_of_parameter_for_reproducibility_test)) {
-    temp=Results[[paste0('IC.',i)]]$Clustered.Signature.matrix
-    temp.QC=Results[[paste0('IC.',i)]]$Cluster.Quality
-    if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])>0) {
-      if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])==1) {
-        temp=data.frame(signature.1=temp[,paste0('signature.',temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$QualityIndex>quality.index.threshold])])
-        colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
-        
-      }
-      else {
-        temp=temp[,paste0('signature.',temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])]
-        colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
-      }
-      Clustered.Signature.matrix[[paste0('IC.',i)]]=temp
+  Filtered.Results=Results
+  for (run in names(Filtered.Results)) {
+    Run=Filtered.Results[[run]]
+    quality=Run$Cluster.Quality
+    num.passed.checks=sum(quality$SignatureNumber<=upperbound&quality$SignatureNumber>=lowerbound&quality$QualityIndex>=quality.index.threshold)
+    if (num.passed.checks==0) {
+      Filtered.Results[[run]]=NULL
+    } else {
+      Run$Clustered.Signature.matrix=as.matrix(Run$Clustered.Signature.matrix[,
+                                                                                paste0('signature.',quality$ClusterNumber[quality$SignatureNumber<=upperbound&quality$QualityIndex>quality.index.threshold])])
+        colnames(Run$Clustered.Signature.matrix)=paste0('signature.',quality$ClusterNumber[quality$SignatureNumber<=upperbound&quality$QualityIndex>quality.index.threshold])
+        Run$Clustered.Affiliation.matrix=as.matrix(Run$Clustered.Affiliation.matrix[,
+                                                                                paste0('signature.',quality$ClusterNumber[quality$SignatureNumber<=upperbound&quality$QualityIndex>quality.index.threshold])])
+        colnames(Run$Clustered.Affiliation.matrix)=paste0('signature.',quality$ClusterNumber[quality$SignatureNumber<=upperbound&quality$QualityIndex>quality.index.threshold])
+        Run$Disimilarity.fixed=NULL
+        Filtered.Results[[run]]=Run
     }
+  }
+  if (length(names(Filtered.Results))<(numbers_of_parameter_for_reproducibility_test/2)) {
+    print('There is not enough signatures pass quality index threshold. Please increase the parameter upperbound, lower the parameter lowerbound and lower the parameter quality.index.threshold')
+    stop()
+  }
     
-    rm(temp,temp.QC)
+  Clustered.Signature.matrix=list()
+  Clustered.Affiliation.matrix=list()
+  if (length(names(Filtered.Results)))
+  for (run in names(Filtered.Results)) {
+    Run=Filtered.Results[[run]]
+    CS=Run$Clustered.Signature.matrix
+    colnames(CS)=paste0(paste0('IC.',i),'.',colnames(CS))
+    Clustered.Signature.matrix[[run]]=CS
+    
+    CA=Run$Clustered.Signature.matrix
+    colnames(CA)=paste0(paste0('IC.',i),'.',colnames(CA))
+    Clustered.Affiliation.matrix[[run]]=CA
   }
   Clustered.Signature.matrix=do.call(cbind,Clustered.Signature.matrix)
-  
-  Clustered.Affiliation.matrix=list()
-  
-  for (i in seq(optimal,optimal+numbers_of_parameter_for_reproducibility_test)) {
-    temp=Results[[paste0('IC.',i)]]$Clustered.Affiliation.matrix
-    temp.QC=Results[[paste0('IC.',i)]]$Cluster.Quality
-    if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])>0) {
-      
-      if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])==1) {
-        temp=data.frame(signature.1=temp[,paste0('signature.',temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$QualityIndex>quality.index.threshold])])
-        colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
-        
-      }
-      else {
-        temp=temp[,paste0('signature.',temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])]
-        colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
-      }
-      Clustered.Affiliation.matrix[[paste0('IC.',i)]]=temp
-    }
-    rm(temp,temp.QC)
-  }
   Clustered.Affiliation.matrix=do.call(cbind,Clustered.Affiliation.matrix)
   
   
@@ -453,9 +446,9 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   ph=pheatmap::pheatmap(Disimilarity.fixed[names(orderofcolumn),
                                  names(orderofcolumn)],
               cluster_rows = F,cluster_cols = F,show_rownames = F,
-              show_colnames = F,annotation_names_col = F,annotation_names_row = F,color = cols,silent=T,annotation_row = data.frame(cluster=as.character(Reproducibility.clustering$Clustering.results),
+              show_colnames = F,annotation_names_col = F,annotation_names_row = F,color = cols,silent=T,annotation_row = data.frame(cluster=as.factor(Reproducibility.clustering$Clustering.results),
                                                                                                                                     row.names = names(Reproducibility.clustering$Clustering.results)),
-              annotation_col = data.frame(cluster=as.character(Reproducibility.clustering$Clustering.results),
+              annotation_col = data.frame(cluster=as.factor(Reproducibility.clustering$Clustering.results),
                                           row.names = names(Reproducibility.clustering$Clustering.results)))
   
   Overall.Results[["Reproducibility_Heatmap"]]=ph
