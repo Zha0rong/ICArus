@@ -117,6 +117,8 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 #' @import kneedle
 #' @export
 ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
+  distance_measure=match.arg(distance_measure)
+  clustering_algorithm=match.arg(clustering_algorithm)
   ICA.Tests.list=list()
   enableWGCNAThreads(nThreads = numberofcores)
   QC.Metrics=data.frame(ICs=parameter_set)
@@ -310,4 +312,159 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
     'Clustered.Affiliation.matrix'=Clustered.Affiliation.matrix,
     'Clustering.results'=Clustering.results))
 }
+
+#' ICARus_complete
+#' @description 
+#' This function is the main function of the package ICARus. The function automatically estimates the number of independent components to extract and output the most stable ones.
+#' @param Matrix  A Matrix where rows are features and columns are observations. The count matrix needs to be normalized and log transformed before being input.
+#' @param iteration The number of iterations of ICA to be run, default is 100.
+#' @param numberofcores Number of cores to use. The default is 2.
+#' @param clustering_algorithm Choose which clustering algorithm to use. Currently the pipeline supports Hierarchical clustering ('Hierarchical') and a clustering method based on Gale Shapely Algorithm ('MatchMaking'). The default is 'Hierarchical'.
+#' @param distance_measure Choose which distance measurement to use for signatures Currently the pipeline supports pearson correlation coefficient ('pearson') and euclidean distance ('euclidean'). The default is 'pearson'.
+#' @param Hierarchical.clustering.method Choose which hierarchical clustering algorithm to use. The default is 'ward.D2'.
+#' @param tolerance The tolerance input for fastICA to converge, the default is 1e-10.
+#' @param max.iteration The maximum number of iteration of fastICA. Default is 10000.
+#' @param upperbound For each parameter x the fastICA is performed y times specified by user. Then the clustering algorithm will cluster the resultsinto x clusters. Ideally each cluster will have the size of y, but that is not always the case. This parameter sets the upper bound for the size of the cluster for the signature to be considered 'stable'.
+#' @param lowerbound For each parameter x the fastICA is performed y times specified by user. Then the clustering algorithm will cluster the resultsinto x clusters. Ideally each cluster will have the size of y, but that is not always the case. This parameter sets the lower bound for the size of the cluster for the signature to be considered 'stable'.
+#' @param quality.index.threshold For each parameter, the signatures obtained by fastICA are evaluated using the index proposed by icasso. The index ranges from 0 to 1, where 0 means unstable at all and 1 means perfectly stable. The threshold specify the lower bound of index for each signature.
+#' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
+#' @importFrom GDAtools medoids
+#' @import coop
+#' @importFrom matrixStats rowMeans2
+#' @import WGCNA
+#' @import Rfast
+#' @import kneedle
+#' @import pheatmap
+
+#' @export
+ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
+                            numbers_of_parameter_for_reproducibility_test=10,
+                            distance_measure=c('pearson','euclidean'),
+                            clustering_algorithm=c('Hierarchical','MatchMaking'),
+                            Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),
+                            tolerance=1e-10,
+                            max.iteration=10000,
+                            upperbound=100,
+                            quality.index.threshold=0.75,
+                            lowerbound=50) {
+  distance_measure=match.arg(distance_measure)
+  clustering_algorithm=match.arg(clustering_algorithm)
+  Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
+  
+  Results=list()
+  Matrix=t(Rfast::standardise(t(Normalized),scale = F))
+  rownames(Matrix)=rownames(Normalized)
+  colnames(Matrix)=colnames(Normalized)
+  
+  Matrix=(Rfast::standardise((Matrix),scale = F))
+  rownames(Matrix)=rownames(Normalized)
+  colnames(Matrix)=colnames(Normalized)
+  Estimation=PCA.Estimation(Matrix = Matrix)
+  Results[["PCA_Elbow_Plot"]]=Estimation$plot
+  optimal=Estimation$ElbowPoint
+  
+  
+  Results=list()
+  #devtools::install_github('Zha0rong/ICARus')
+  for (i in seq(optimal,optimal+number_of_parameter_for_iteration)) {
+    ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,iteration = iteration,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,distance_measure = distance_measure,Hierarchical.clustering.method = Hierarchical.clustering.method,tol=tolerance,maxit=max.iteration)
+    Results[[paste0('IC.',i)]]=ICAResults
+    print(i)
+    rm(ICAResults)
+  }
+  
+  
+  Clustered.Signature.matrix=list()
+  
+  for (i in seq(optimal,optimal+number_of_parameter_for_iteration)) {
+    temp=Results[[paste0('IC.',i)]]$Clustered.Signature.matrix
+    temp.QC=Results[[paste0('IC.',i)]]$Cluster.Quality
+    if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])>0) {
+      if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])==1) {
+        temp=data.frame(signature.1=temp[,paste0('signature.',temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$QualityIndex>quality.index.threshold])])
+        colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
+        
+      }
+      else {
+        temp=temp[,paste0('signature.',temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])]
+        colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
+      }
+      Clustered.Signature.matrix[[paste0('IC.',i)]]=temp
+      print(i)
+    }
+    
+    rm(temp,temp.QC)
+  }
+  Clustered.Signature.matrix=do.call(cbind,Clustered.Signature.matrix)
+  
+  Clustered.Affiliation.matrix=list()
+  
+  for (i in seq(optimal,optimal+number_of_parameter_for_iteration)) {
+    temp=Results[[paste0('IC.',i)]]$Clustered.Affiliation.matrix
+    temp.QC=Results[[paste0('IC.',i)]]$Cluster.Quality
+    if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])>0) {
+      
+      if (length(temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])==1) {
+        temp=data.frame(signature.1=temp[,paste0('signature.',temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$QualityIndex>quality.index.threshold])])
+        colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
+        
+      }
+      else {
+        temp=temp[,paste0('signature.',temp.QC$ClusterNumber[temp.QC$SignatureNumber<=upperbound&temp.QC$SignatureNumber>=lowerbound&temp.QC$QualityIndex>quality.index.threshold])]
+        colnames(temp)=paste0(paste0('IC.',i),'.',colnames(temp))
+      }
+      Clustered.Affiliation.matrix[[paste0('IC.',i)]]=temp
+      print(i)
+    }
+    rm(temp,temp.QC)
+  }
+  Clustered.Affiliation.matrix=do.call(cbind,Clustered.Affiliation.matrix)
+  
+  
+  correlation=WGCNA::adjacency(as.matrix(Clustered.Signature.matrix),power = 1)
+  Disimilarity.fixed=1-abs(correlation)
+  
+  Reproducibility.clustering=Signature_Hierarchical_Clustering(Disimilarity.fixed,Affiliation.Matrix = Clustered.Affiliation.matrix,Signature.Matrix = Clustered.Signature.matrix,
+                                                               min_cluster = 2,max_cluster = ifelse(nrow(Disimilarity.fixed)/2>100,yes=100,no=nrow(Disimilarity.fixed)-1),
+                                                               numberofcores = numberofcores,method=Hierarchical.clustering.method)
+  
+  
+  anno=data.frame(cluster=(Reproducibility.clustering$Clustering.results))
+  
+  ordering_of_cluster=table(Reproducibility.clustering$Clustering.results)
+  ordering_of_cluster=ordering_of_cluster[order(ordering_of_cluster,decreasing = T)]
+  
+  orderofcolumn=c()
+  for (i in names(ordering_of_cluster)) {
+    orderofcolumn=c(orderofcolumn,
+                    Reproducibility.clustering$Clustering.results[Reproducibility.clustering$Clustering.results==i])
+  }
+  
+  cols = colorRampPalette(c( 'darkred',"white"))(50)
+  
+  ph=pheatmap::pheatmap(Disimilarity.fixed[names(orderofcolumn),
+                                 names(orderofcolumn)],
+              cluster_rows = F,cluster_cols = F,show_rownames = T,
+              show_colnames = F,annotation_names_col = F,annotation_names_row = F,color = cols,silent=T)
+  
+  Results[["Reproducibility_Heatmap"]]=ph
+  
+  usable.cluster=Reproducibility.clustering$Clustering.results[Reproducibility.clustering$Clustering.results%in%names(table(Reproducibility.clustering$Clustering.results)
+                                                                                                                      [table(Reproducibility.clustering$Clustering.results)>=(numbers_of_parameter_for_reproducibility_test/2)])]
+  usable.cluster=names(usable.cluster)
+  usable.cluster=usable.cluster[grepl(paste0('IC.',optimal),usable.cluster)]
+  usable.cluster=gsub(paste0('IC.',optimal,'.'),'',usable.cluster)
+  Ideal_Results=Results[[paste0('IC.',optimal)]]
+  
+  Consensus.Affiliation.matrix=Ideal_Results$Clustered.Affiliation.matrix[,usable.cluster]
+  Consensus.Signature.matrix=Ideal_Results$Clustered.Signature.matrix[,usable.cluster]
+  Results[["Reproducible_Signature_Matrix"]]=Consensus.Signature.matrix
+  Results[["Reproducible_Affiliation_Matrix"]]=Consensus.Affiliation.matrix
+  
+  return(Results)
+}
+
+
+
+
 
