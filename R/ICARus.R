@@ -429,6 +429,18 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
                                                                numberofcores = numberofcores,method=Hierarchical.clustering.method)
   
   
+  
+  a=Cluster_Stability_Calculation(correlation,Clustering_identity = Reproducibility.clustering$Clustering.results,numberofcores = numberofcores)
+  a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
+  b=data.frame(table(Reproducibility.clustering$Clustering.results))
+  rownames(b)=b$Var1
+  colnames(b)=c('ClusterNumber','SignatureNumber')
+  a=merge(a,b,by='ClusterNumber')
+  
+  Results[["Quality_Index_of_Reproducible_Signatures"]]=a
+  
+  
+  
   anno=data.frame(cluster=(Reproducibility.clustering$Clustering.results))
   
   ordering_of_cluster=table(Reproducibility.clustering$Clustering.results)
