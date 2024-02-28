@@ -351,7 +351,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   clustering_algorithm=match.arg(clustering_algorithm)
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
   
-  Results=list()
+  Overall.Results=list()
   Matrix=t(Rfast::standardise(t(Normalized),scale = F))
   rownames(Matrix)=rownames(Normalized)
   colnames(Matrix)=colnames(Normalized)
@@ -360,7 +360,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   rownames(Matrix)=rownames(Normalized)
   colnames(Matrix)=colnames(Normalized)
   Estimation=PCA.Estimation(Matrix = Matrix)
-  Results[["PCA_Elbow_Plot"]]=Estimation$plot
+  Overall.Results[["PCA_Elbow_Plot"]]=Estimation$plot
   optimal=Estimation$ElbowPoint
   
   
@@ -372,6 +372,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
     print(i)
     rm(ICAResults)
   }
+  Overall.Results[['Raw.Results']]=Results
   
   
   Clustered.Signature.matrix=list()
@@ -431,13 +432,13 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   
   
   a=Cluster_Stability_Calculation(correlation,Clustering_identity = Reproducibility.clustering$Clustering.results,numberofcores = numberofcores)
-  a=data.frame(ICs=rep(0,length(a)),ClusterNumber=names(a),QualityIndex=a)
+  a=data.frame(ICs=rep(optimal,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Reproducibility.clustering$Clustering.results))
   rownames(b)=b$Var1
   colnames(b)=c('ClusterNumber','SignatureNumber')
   a=merge(a,b,by='ClusterNumber')
   
-  Results[["Quality_Index_of_Reproducible_Signatures"]]=a
+  Overall.Results[["Quality_Index_of_Reproducible_Signatures"]]=a
   
   
   
@@ -456,10 +457,13 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   
   ph=pheatmap::pheatmap(Disimilarity.fixed[names(orderofcolumn),
                                  names(orderofcolumn)],
-              cluster_rows = F,cluster_cols = F,show_rownames = T,
-              show_colnames = F,annotation_names_col = F,annotation_names_row = F,color = cols,silent=T)
+              cluster_rows = F,cluster_cols = F,show_rownames = F,
+              show_colnames = F,annotation_names_col = F,annotation_names_row = F,color = cols,silent=T,annotation_row = data.frame(cluster=as.character(Reproducibility.clustering$Clustering.results),
+                                                                                                                                    row.names = names(Reproducibility.clustering$Clustering.results)),
+              annotation_col = data.frame(cluster=as.character(Reproducibility.clustering$Clustering.results),
+                                          row.names = names(Reproducibility.clustering$Clustering.results)))
   
-  Results[["Reproducibility_Heatmap"]]=ph
+  Overall.Results[["Reproducibility_Heatmap"]]=ph
   
   usable.cluster=Reproducibility.clustering$Clustering.results[Reproducibility.clustering$Clustering.results%in%names(table(Reproducibility.clustering$Clustering.results)
                                                                                                                       [table(Reproducibility.clustering$Clustering.results)>=(numbers_of_parameter_for_reproducibility_test/2)])]
@@ -470,10 +474,10 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   
   Consensus.Affiliation.matrix=Ideal_Results$Clustered.Affiliation.matrix[,usable.cluster]
   Consensus.Signature.matrix=Ideal_Results$Clustered.Signature.matrix[,usable.cluster]
-  Results[["Reproducible_Signature_Matrix"]]=Consensus.Signature.matrix
-  Results[["Reproducible_Affiliation_Matrix"]]=Consensus.Affiliation.matrix
+  Overall.Results[["Reproducible_Signature_Matrix"]]=Consensus.Signature.matrix
+  Overall.Results[["Reproducible_Affiliation_Matrix"]]=Consensus.Affiliation.matrix
   
-  return(Results)
+  return(Overall.Results)
 }
 
 
