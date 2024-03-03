@@ -350,7 +350,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
   
   Overall.Results=list()
-  Matrix=t(Rfast::standardise(t(Normalized),scale = F))
+  Matrix=t(Rfast::standardise(t(Matrix),scale = F))
   rownames(Matrix)=rownames(Normalized)
   colnames(Matrix)=colnames(Normalized)
   
