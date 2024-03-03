@@ -212,6 +212,15 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' @import kneedle
 #' @export
 PCA.Estimation <- function(Matrix=NULL) {
+  Normalized=Matrix
+  Matrix=t(Rfast::standardise(t(Normalized),scale = F))
+  rownames(Matrix)=rownames(Normalized)
+  colnames(Matrix)=colnames(Normalized)
+  
+  Matrix=(Rfast::standardise((Matrix),scale = F))
+  rownames(Matrix)=rownames(Normalized)
+  colnames(Matrix)=colnames(Normalized)
+  
   Results=list()
   PCA=prcomp(t(Matrix),center=F,scale.=F)
   PCA.summary=summary(PCA)
@@ -350,13 +359,18 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
   
   Overall.Results=list()
-  Matrix=t(Rfast::standardise(t(Matrix),scale = F))
+
+  Normalized=Matrix
+  Matrix=t(Rfast::standardise(t(Normalized),scale = F))
   rownames(Matrix)=rownames(Normalized)
   colnames(Matrix)=colnames(Normalized)
   
   Matrix=(Rfast::standardise((Matrix),scale = F))
   rownames(Matrix)=rownames(Normalized)
   colnames(Matrix)=colnames(Normalized)
+  
+  
+  
   Estimation=PCA.Estimation(Matrix = Matrix)
   Overall.Results[["PCA_Elbow_Plot"]]=Estimation$plot
   optimal=Estimation$ElbowPoint
