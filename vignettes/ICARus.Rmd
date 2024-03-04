@@ -12,7 +12,7 @@ output:
       toc_collapsed: true
       toc_depth: 3
     fig_caption: yes
-    code_folding: hide
+    code_folding: show
     theme: cerulean
 editor_options: 
   chunk_output_type: console
@@ -96,7 +96,7 @@ metadata=ICARus::metadata
 
 ```
 
-## Preview metadata
+## Preview of metadata
 
 The metadata of this RNA-Seq dataset is a data frame where the rows are samples and columns are phenotype information of the samples.
 
@@ -106,7 +106,7 @@ DT::datatable(metadata,filter = 'top',options = list(autoWidth = TRUE))
 
 ```
 
-## Preview Count Matrix
+## Preview of Count Matrix
 
 The Count Matrix of this RNA-Seq dataset is a matrix where the rows are gene symbols and columns are samples.
 
@@ -114,14 +114,14 @@ The Count Matrix of this RNA-Seq dataset is a matrix where the rows are gene sym
 DT::datatable(head(Count.Matrix),filter = 'top',options = list(autoWidth = TRUE,scrollX = TRUE),width = '100%')
 ```
 
-# Filtering, Normalizing Data
+# Filtering and Normalizing Data
 
 Genes that have 0 expression in more than half number of samples are removed.
 
 The RNA-Seq dataset is Counts Per Million (CPM) normalized and log transformed using edgeR `r knitcitations::citep(bib[["edgeR"]])`.
 
 
-```{r Normalizing and Centering,error=FALSE,warning=FALSE,message=FALSE}
+```{r Normalizing,error=FALSE,warning=FALSE,message=FALSE}
 
 
 Normalized=Count.Matrix
@@ -165,7 +165,7 @@ For every parameter in this set:
 
 After iterating through the parameters, the signatures that passed the robustness threshold from each parameter are analyzed using hierarchical clustering. Based on the size of the cluster one signature belongs to, the reproducibility of the signature among different parameters can be evaluate. The pipeline will output the signatures that are reproducible in more than half of the parameters tested.
 
-```{r ICARus,error=FALSE,warning=FALSE,message=FALSE}
+```{r ICARus,error=FALSE,warning=FALSE,message=FALSE,results = "hide"}
 
 Results=ICARus::ICARus_complete(Normalized,
                         iteration = 100,
@@ -282,7 +282,7 @@ Each signature can be viewed as a ranked gene list, and hence can be analyzed us
 
 
 ```{r GSEA,fig.width=15,fig.height=15,error=FALSE,warning=FALSE,message=FALSE}
-
+library(fgsea)
 GSEA.Results=list()
 GO=gmtPathways('https://data.broadinstitute.org/gsea-msigdb/msigdb/release/2023.2.Hs/c5.go.bp.v2023.2.Hs.symbols.gmt')
 
@@ -294,7 +294,7 @@ for (signature in colnames(Results$Reproducible_Signature_Matrix)) {
   
   signature.gsea=fgseaMultilevel(GO,signature,minSize = 15,maxSize = 500,eps = 0,nPermSimple = 10000)
   signature.gsea$leadingedgegene=''
-  signature.gsea=signature.gsea[signature.gsea$padj<0.25,]
+  signature.gsea=signature.gsea[signature.gsea$padj<0.05,]
   
   for (i in 1:nrow(signature.gsea)) {
     signature.gsea$leadingedgegene[i]=paste(unlist(signature.gsea$leadingEdge[i]),collapse = ',')
@@ -318,3 +318,11 @@ GSEA.Results=do.call(rbind,GSEA.Results)
 DT::datatable(GSEA.Results,filter = 'top',options = list(autoWidth = TRUE,scrollX = TRUE),width = '100%')
 
 ```
+
+
+# Session info {.unnumbered}
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```
+
