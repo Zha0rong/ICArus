@@ -10,7 +10,8 @@ URL: https://github.com/Zha0rong/ICArus
 BugReports: https://github.com/Zha0rong/ICArus/issues
 biocViews: GeneExpression, Transcription, DifferentialExpression
 Imports:
-    BiocGenerics (>= 0.7.5), 
+    BiocGenerics (>= 0.7.5),
+    GO.db,
     Biobase, 
     BiocParallel,
     GDAtools,
