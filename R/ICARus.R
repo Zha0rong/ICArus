@@ -17,6 +17,7 @@
 #' @import WGCNA
 #' @import Rfast
 #' @import kneedle
+#' @import fastICA
 #' @export
 ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
   distance_measure=match.arg(distance_measure)
@@ -115,6 +116,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 #' @import WGCNA
 #' @import Rfast
 #' @import kneedle
+#' @import fastICA
 #' @export
 ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
   distance_measure=match.arg(distance_measure)
@@ -254,6 +256,8 @@ PCA.Estimation <- function(Matrix=NULL) {
 #' @import foreach
 #' @import kneedle
 #' @importFrom GDAtools medoids
+#' @import fastICA
+#' @import pheatmap
 #' @export
 Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,Signature.Matrix,min_cluster=2,max_cluster=ncol(Disimmilarity)/2,numberofcores=2,...) {
   clustering_results=hclust(as.dist(Disimmilarity),...)
@@ -342,7 +346,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @import Rfast
 #' @import kneedle
 #' @import pheatmap
-
+#' @import fastICA
 #' @export
 ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
                             numbers_of_parameter_for_reproducibility_test=10,
