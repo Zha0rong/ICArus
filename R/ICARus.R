@@ -29,7 +29,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   faster_whiten=faster_ICA_whitening(Matrix)
 
   
-  ICAResults=ParaICA(Matrix,faster_whiten=faster_whiten,numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
+  ICAResults=ParaICA(Matrix,faster_whiten=NULL,numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
 
   Signature.Matrix=as.matrix(ICAResults$Signature.Matrix)
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
