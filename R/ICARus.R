@@ -25,8 +25,11 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
   
   WGCNA::enableWGCNAThreads(nThreads = numberofcores)
+  faster_whiten=faster_ICA_whitening(Matrix)
+  faster_whiten$K <- matrix(faster_whiten$K[1:numberofcomponents, ], numberofcomponents, faster_whiten$p)
   
-  ICAResults=ParaICA(Matrix,faster_whiten=NULL,numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
+  faster_whiten$X1 <- Rfast::mat.mult(faster_whiten$K, faster_whiten$X)
+  ICAResults=ParaICA(Matrix,faster_whiten=faster_whiten,numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
 
   Signature.Matrix=as.matrix(ICAResults$Signature.Matrix)
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)

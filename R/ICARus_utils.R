@@ -228,7 +228,7 @@ faster_ICA_whitening <- function (X) {
   s <- rsvd::rsvd(V)
   D <- diag(c(1/sqrt(s$d)))
   
-  K <- Rfast::mat.mult(D , t(s$u))
+  K <- as.matrix(Rfast::mat.mult(D , t(s$u)))
   return(list(X=X,K=K,n=n,p=p))
 }
 
