@@ -178,7 +178,7 @@ ParaICA <- function(CountMatrix,faster_whiten=NULL,numberofcomponents,iteration,
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
   x=foreach::foreach(i=seq(1,iteration),.packages=c('fastICA','Rfast'),.export = c('faster_ICA','fasterICA_par','fasterICA_def'), .options.snow = opts) %dopar% {
-    if (is.null(faster_whiten)){resICA=fastICA(CountMatrix,n.comp = numberofcomponents,method = 'C',...)}
+    if (is.null(faster_whiten)){resICA=fastICA(CountMatrix,row.norm = F,n.comp = numberofcomponents,method = 'C',...)}
     if (!is.null(faster_whiten)){resICA=faster_ICA(whitening_list = faster_whiten,n.comp = numberofcomponents,...)
     }
     Affiliation.Matrix=(as.matrix(resICA$A))
