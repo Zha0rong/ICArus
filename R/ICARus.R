@@ -272,7 +272,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
   sils=unlist(x)
   
   silhouettes=data.frame(silhouettes=(sils),resolution=seq(min_cluster,max_cluster))
-  elbowpoint=as.integer(PCAtools::findElbowPoint(silhouettes$silhouettes))
+  elbowpoint=as.integer(PCAtools::findElbowPoint(silhouettes$silhouettes*(-1)))
 
   #figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouettes)])+ggtitle('Averaged Silhouettes Graph')
   figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = elbowpoint)+ggtitle('Averaged Silhouettes Graph')
