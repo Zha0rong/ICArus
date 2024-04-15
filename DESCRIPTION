@@ -27,7 +27,7 @@ Imports:
     rsvd,
     snow,
     truncnorm,
-    kneedle (>= 1.0.0),
+    PCAtools,
     impute, 
     preprocessCore, 
     pheatmap, 

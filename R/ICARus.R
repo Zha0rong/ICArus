@@ -16,7 +16,6 @@
 #' @importFrom matrixStats rowMeans2
 #' @import WGCNA
 #' @import Rfast
-#' @import kneedle
 #' @import fastICA
 #' @export
 ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
@@ -115,7 +114,6 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 #' @importFrom matrixStats rowMeans2
 #' @import WGCNA
 #' @import Rfast
-#' @import kneedle
 #' @import fastICA
 #' @export
 ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
@@ -211,23 +209,15 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' @return A list of one vector and one ggplot,
 #' @import ggplot2
 #' @import ggrepel
-#' @import kneedle
+#' @import PCAtools
 #' @export
 PCA.Estimation <- function(Matrix=NULL) {
   Normalized=Matrix
-  Matrix=t(Rfast::standardise(t(Normalized),scale = F))
-  rownames(Matrix)=rownames(Normalized)
-  colnames(Matrix)=colnames(Normalized)
-  
-  Matrix=(Rfast::standardise((Matrix),scale = F))
-  rownames(Matrix)=rownames(Normalized)
-  colnames(Matrix)=colnames(Normalized)
-  
   Results=list()
-  PCA=prcomp(t(Matrix),center=F,scale.=F)
+  PCA=prcomp(t(Normalized),center=T,scale.=F)
   PCA.summary=summary(PCA)
   PCA.candidates=PCA.summary$importance[1,]
-  Results$ElbowPoint=kneedle(seq(1,length(PCA.candidates)),y = PCA.candidates)[1]
+  Results$ElbowPoint=as.integer(PCAtools::findElbowPoint(PCA.candidates))
   
   plot_data=data.frame(index=seq(1,length(PCA.candidates)),stdev=PCA.candidates)
   plot_data$label=ifelse(plot_data$index==Results$ElbowPoint,yes=paste0('Elbow Point: ',Results$ElbowPoint),no='')
@@ -254,7 +244,7 @@ PCA.Estimation <- function(Matrix=NULL) {
 #' @import doParallel
 #' @import doSNOW
 #' @import foreach
-#' @import kneedle
+#' @import PCAtools
 #' @importFrom GDAtools medoids
 #' @import fastICA
 #' @import pheatmap
@@ -282,7 +272,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
   sils=unlist(x)
   
   silhouettes=data.frame(silhouettes=(sils),resolution=seq(min_cluster,max_cluster))
-  elbowpoint=kneedle::kneedle(x=silhouettes$resolution,y=silhouettes$silhouettes)[1]
+  elbowpoint=as.integer(PCAtools::findElbowPoint(silhouettes$silhouettes))
 
   #figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouettes)])+ggtitle('Averaged Silhouettes Graph')
   figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = elbowpoint)+ggtitle('Averaged Silhouettes Graph')
@@ -344,7 +334,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @importFrom matrixStats rowMeans2
 #' @import WGCNA
 #' @import Rfast
-#' @import kneedle
+#' @import PCAtools
 #' @import pheatmap
 #' @import fastICA
 #' @export
@@ -375,7 +365,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   
   
   
-  Estimation=PCA.Estimation(Matrix = Matrix)
+  Estimation=PCA.Estimation(Matrix = Normalized)
   Overall.Results[["PCA_Elbow_Plot"]]=Estimation$plot
   optimal=Estimation$ElbowPoint
   
