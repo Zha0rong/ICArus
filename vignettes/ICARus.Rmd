@@ -126,7 +126,7 @@ The RNA-Seq dataset is Counts Per Million (CPM) normalized and log transformed u
 
 Normalized=Count.Matrix
 fun = function(x) {
-  return(sum(x>=1)>=0.5*length(x))
+  return(sum(x>=1)>=0.25*length(x))
 }
 rows.keep=apply(Normalized,1,FUN = fun)
 Normalized=Normalized[rows.keep,]
