@@ -18,17 +18,14 @@
 #' @import Rfast
 #' @import fastICA
 #' @export
-ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
+ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
   distance_measure=match.arg(distance_measure)
   clustering_algorithm=match.arg(clustering_algorithm)
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
   
   WGCNA::enableWGCNAThreads(nThreads = numberofcores)
-  faster_whiten=faster_ICA_whitening(Matrix)
-  faster_whiten$K <- matrix(faster_whiten$K[1:numberofcomponents, ], numberofcomponents, faster_whiten$p)
-  
-  faster_whiten$X1 <- Rfast::mat.mult(faster_whiten$K, faster_whiten$X)
-  ICAResults=ParaICA(Matrix,faster_whiten=faster_whiten,numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
+  ICAResults=ParaICA(Matrix,
+                     numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
 
   Signature.Matrix=as.matrix(ICAResults$Signature.Matrix)
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
@@ -42,32 +39,20 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   if (distance_measure=='pearson') {
     correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
     Disimilarity.fixed=1-abs(correlation)
-    if (clustering_algorithm=='Hierarchical') {
-      cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
-      cluster=cutree(cluster,numberofcomponents)
-      Disimmilarity.Results$Clustering.results.item$clustering=cluster
-    } else if (clustering_algorithm=='MatchMaking') {
-      Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
-      names(Group)=colnames(Signature.Matrix)
-      Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(abs(correlation),Group=Group,ncluster=numberofcomponents)
-
-    }
+    cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
+    cluster=cutree(cluster,numberofcomponents)
+    Disimmilarity.Results$Clustering.results.item$clustering=cluster
+    
     } else if (distance_measure=='euclidean') {
       correlation=as.matrix(Rfast::Dist(t(Signature.Matrix),method = 'euclidean'))
       colnames(correlation)=colnames(Signature.Matrix)
       rownames(correlation)=colnames(Signature.Matrix)
       
       Disimilarity.fixed=correlation
-    if (clustering_algorithm=='Hierarchical') {
       cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)
       cluster=cutree(cluster,numberofcomponents)
       Disimmilarity.Results$Clustering.results.item$clustering=cluster
 
-    } else if (clustering_algorithm=='MatchMaking') {
-      Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
-      names(Group)=colnames(Signature.Matrix)
-      Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(1/(1+(correlation)),Group=Group,ncluster=numberofcomponents)
-    }
   }
 
 
@@ -116,9 +101,10 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 #' @import Rfast
 #' @import fastICA
 #' @export
-ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
+ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distance_measure=c('pearson'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
   distance_measure=match.arg(distance_measure)
   clustering_algorithm=match.arg(clustering_algorithm)
+  Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
   ICA.Tests.list=list()
   enableWGCNAThreads(nThreads = numberofcores)
   QC.Metrics=data.frame(ICs=parameter_set)
@@ -130,7 +116,9 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
     temp=faster_whiten
     temp$K <- matrix(temp$K[1:i, ], i, temp$p)
     temp$X1 <- mat.mult(temp$K, temp$X)
-    ICAResults=ParaICA(CountMatrix = Matrix,faster_whiten =  temp,numberofcomponents = i,iteration=iteration,numberofcores = numberofcores,...)
+    ICAResults=ParaICA(CountMatrix = Matrix,
+                       #faster_whiten =  temp,
+                       numberofcomponents = i,iteration=iteration,numberofcores = numberofcores,...)
     Signature.Matrix=ICAResults$Signature.Matrix
     Affiliation.Matrix=ICAResults$Affiliation.Matrix
     Disimmilarity.Results=list()
@@ -142,7 +130,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
     rm(Corrected)
     if (distance_measure=='pearson') {
       correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
-      Disimilarity.fixed=1-abs(correlation)
+      Disimilarity.fixed=1-(correlation)
       if (clustering_algorithm=='Hierarchical') {
         cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
         cluster=cutree(cluster,i)
@@ -153,34 +141,8 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
         Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(abs(correlation),Group=Group,ncluster=i)
         
       }
-    } else if (distance_measure=='euclidean') {
-      correlation=as.matrix(Rfast::Dist(t(Signature.Matrix),method = 'euclidean'))
-      colnames(correlation)=colnames(Signature.Matrix)
-      rownames(correlation)=colnames(Signature.Matrix)
-      
-      Disimilarity.fixed=correlation
-      if (clustering_algorithm=='Hierarchical') {
-        cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)
-        cluster=cutree(cluster,i)
-        Disimmilarity.Results$Clustering.results.item$clustering=cluster
-        
-      } else if (clustering_algorithm=='MatchMaking') {
-        Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
-        names(Group)=colnames(Signature.Matrix)
-        Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(1/(1+(correlation)),Group=Group,ncluster=i)
-      }
     }
-    
-   
-    
-    
-    
-    
-    
-    
-    
-    correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
-    a=Cluster_Stability_Calculation(abs(correlation),Clustering_identity = Disimmilarity.Results$Clustering.results$clustering,numberofcores = numberofcores)
+    a=Cluster_Stability_Calculation((correlation),Clustering_identity = Disimmilarity.Results$Clustering.results$clustering,numberofcores = numberofcores)
     a=data.frame(ICs=rep(i,length(a)),ClusterNumber=names(a),QualityIndex=a)
     b=data.frame(table(Disimmilarity.Results$Clustering.results$clustering))
     rownames(b)=b$Var1
@@ -210,14 +172,16 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' @import ggplot2
 #' @import ggrepel
 #' @import PCAtools
+#' @import kneedle
 #' @export
 PCA.Estimation <- function(Matrix=NULL) {
   Normalized=Matrix
   Results=list()
-  PCA=prcomp(t(Normalized),center=T,scale.=F)
+  PCA=prcomp(t(Normalized),center=T,scale.=T)
   PCA.summary=summary(PCA)
-  PCA.candidates=PCA.summary$importance[1,]
-  Results$ElbowPoint=as.integer(PCAtools::findElbowPoint(PCA.candidates))
+  PCA.candidates=PCA.summary$importance[3,]
+  PCA.candidates=1/PCA.candidates
+  Results$ElbowPoint=kneedle::kneedle(seq(1,length(PCA.candidates)),PCA.candidates)[1]
   
   plot_data=data.frame(index=seq(1,length(PCA.candidates)),stdev=PCA.candidates)
   plot_data$label=ifelse(plot_data$index==Results$ElbowPoint,yes=paste0('Elbow Point: ',Results$ElbowPoint),no='')
@@ -340,8 +304,8 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @export
 ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
                             numbers_of_parameter_for_reproducibility_test=10,
-                            distance_measure=c('pearson','euclidean'),
-                            clustering_algorithm=c('Hierarchical','MatchMaking'),
+                            distance_measure=c('pearson'),
+                            clustering_algorithm=c('Hierarchical'),
                             Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),
                             tolerance=1e-10,
                             max.iteration=10000,
@@ -382,16 +346,16 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   for (run in names(Filtered.Results)) {
     Run=Filtered.Results[[run]]
     quality=Run$Cluster.Quality
-    num.passed.checks=sum(quality$SignatureNumber<=upperbound&quality$SignatureNumber>=lowerbound&quality$QualityIndex>=quality.index.threshold)
+    num.passed.checks=sum(quality$SignatureNumber==iteration&quality$QualityIndex>=quality.index.threshold)
     if (num.passed.checks==0) {
       Filtered.Results[[run]]=NULL
     } else {
       Run$Clustered.Signature.matrix=as.matrix(Run$Clustered.Signature.matrix[,
-                                                                                paste0('signature.',quality$ClusterNumber[quality$SignatureNumber<=upperbound&quality$QualityIndex>quality.index.threshold])])
-        colnames(Run$Clustered.Signature.matrix)=paste0('signature.',quality$ClusterNumber[quality$SignatureNumber<=upperbound&quality$QualityIndex>quality.index.threshold])
+                                                                                paste0('signature.',quality$ClusterNumber[quality$SignatureNumber==iteration&quality$QualityIndex>quality.index.threshold])])
+        colnames(Run$Clustered.Signature.matrix)=paste0('signature.',quality$ClusterNumber[quality$SignatureNumber==iteration&quality$QualityIndex>quality.index.threshold])
         Run$Clustered.Affiliation.matrix=as.matrix(Run$Clustered.Affiliation.matrix[,
-                                                                                paste0('signature.',quality$ClusterNumber[quality$SignatureNumber<=upperbound&quality$QualityIndex>quality.index.threshold])])
-        colnames(Run$Clustered.Affiliation.matrix)=paste0('signature.',quality$ClusterNumber[quality$SignatureNumber<=upperbound&quality$QualityIndex>quality.index.threshold])
+                                                                                paste0('signature.',quality$ClusterNumber[quality$SignatureNumber==iteration&quality$QualityIndex>quality.index.threshold])])
+        colnames(Run$Clustered.Affiliation.matrix)=paste0('signature.',quality$ClusterNumber[quality$SignatureNumber==iteration&quality$QualityIndex>quality.index.threshold])
         Run$Disimilarity.fixed=NULL
         Filtered.Results[[run]]=Run
     }

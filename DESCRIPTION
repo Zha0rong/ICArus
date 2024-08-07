@@ -4,7 +4,7 @@ Version: 1.0.0
 Authors@R: 
     person("Zhaorong", "Li", , "zhaorong@bu.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5268-6986"))
-Description: ICARus is a package that runs independent component analysis and finds the most stable independent components. The evaluation method of the most stable independent componets is based on icasso (J. Himberg et al., 2004). 
+Description: ICARus is a package that runs independent component analysis and finds the most stable independent components. The evaluation method of the most stable independent componets is based on icasso (J. Hamburg et al., 2004). 
 License: MIT + file LICENSE
 URL: https://github.com/Zha0rong/ICArus
 BugReports: https://github.com/Zha0rong/ICArus/issues
