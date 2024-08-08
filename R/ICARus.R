@@ -14,18 +14,14 @@
 #' @importFrom GDAtools medoids
 #' @import coop
 #' @importFrom matrixStats rowMeans2
-#' @import WGCNA
 #' @import Rfast
 #' @import fastICA
 #' @export
-ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
+ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('euclidean','pearson'),clustering_algorithm=c('Hierarchical'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
   distance_measure=match.arg(distance_measure)
   clustering_algorithm=match.arg(clustering_algorithm)
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
-  
-  WGCNA::enableWGCNAThreads(nThreads = numberofcores)
-  ICAResults=ParaICA(Matrix,
-                     numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
+  ICAResults=ParaICA(Matrix,numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
 
   Signature.Matrix=as.matrix(ICAResults$Signature.Matrix)
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
@@ -37,7 +33,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   Disimmilarity.Results=list()
   
   if (distance_measure=='pearson') {
-    correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
+    correlation=coop::pcor(Signature.Matrix)
     Disimilarity.fixed=1-abs(correlation)
     cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
     cluster=cutree(cluster,numberofcomponents)
@@ -64,7 +60,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   colnames(Clustered.Signature.matrix)=seq(1,ncol(Clustered.Signature.matrix))
   colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
   colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
-  correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
+  correlation=coop::pcor(Signature.Matrix)
   a=Cluster_Stability_Calculation(correlation,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
   a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
@@ -74,7 +70,6 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   Cluster.Quality=a
   rm(a,b)
   
-  WGCNA::disableWGCNAThreads()
   return(list(Clustered.Signature.matrix=Clustered.Signature.matrix,
               Clustered.Affiliation.matrix=Clustered.Affiliation.matrix,
               Cluster.Quality=Cluster.Quality,
@@ -97,16 +92,14 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @import coop
 #' @importFrom matrixStats rowMeans2
-#' @import WGCNA
 #' @import Rfast
 #' @import fastICA
 #' @export
-ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distance_measure=c('pearson'),clustering_algorithm=c('Hierarchical','MatchMaking'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
+ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distance_measure=c('euclidean','pearson'),clustering_algorithm=c('Hierarchical'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
   distance_measure=match.arg(distance_measure)
   clustering_algorithm=match.arg(clustering_algorithm)
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
   ICA.Tests.list=list()
-  enableWGCNAThreads(nThreads = numberofcores)
   QC.Metrics=data.frame(ICs=parameter_set)
   QC.Metrics$IR=0
   QC.Metrics$MSE=0
@@ -117,7 +110,6 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
     temp$K <- matrix(temp$K[1:i, ], i, temp$p)
     temp$X1 <- mat.mult(temp$K, temp$X)
     ICAResults=ParaICA(CountMatrix = Matrix,
-                       #faster_whiten =  temp,
                        numberofcomponents = i,iteration=iteration,numberofcores = numberofcores,...)
     Signature.Matrix=ICAResults$Signature.Matrix
     Affiliation.Matrix=ICAResults$Affiliation.Matrix
@@ -129,18 +121,11 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
     Affiliation.Matrix=Corrected$Results.A
     rm(Corrected)
     if (distance_measure=='pearson') {
-      correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
+      correlation=coop::pcor(as.matrix(Signature.Matrix))
       Disimilarity.fixed=1-(correlation)
-      if (clustering_algorithm=='Hierarchical') {
         cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
         cluster=cutree(cluster,i)
         Disimmilarity.Results$Clustering.results.item$clustering=cluster
-      } else if (clustering_algorithm=='MatchMaking') {
-        Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
-        names(Group)=colnames(Signature.Matrix)
-        Disimmilarity.Results$Clustering.results.item$clustering=Individual_Matching(abs(correlation),Group=Group,ncluster=i)
-        
-      }
     }
     a=Cluster_Stability_Calculation((correlation),Clustering_identity = Disimmilarity.Results$Clustering.results$clustering,numberofcores = numberofcores)
     a=data.frame(ICs=rep(i,length(a)),ClusterNumber=names(a),QualityIndex=a)
@@ -150,7 +135,6 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
     a=merge(a,b,by='ClusterNumber')
     ICA.Tests.list[[i]]=a
   }
-  disableWGCNAThreads()
   ICA.Tests=ICA.Tests.list
   ICA.Tests=do.call(rbind,ICA.Tests)
   ICA.Tests.median=aggregate(QualityIndex~ICs,data=ICA.Tests,median)
@@ -296,7 +280,6 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @importFrom GDAtools medoids
 #' @import coop
 #' @importFrom matrixStats rowMeans2
-#' @import WGCNA
 #' @import Rfast
 #' @import PCAtools
 #' @import pheatmap
@@ -304,11 +287,11 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @export
 ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
                             numbers_of_parameter_for_reproducibility_test=10,
-                            distance_measure=c('pearson'),
+                            distance_measure=c('euclidean','pearson'),
                             clustering_algorithm=c('Hierarchical'),
                             Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),
-                            tolerance=1e-10,
-                            max.iteration=10000,
+                            tolerance=1e-6,
+                            max.iteration=1000,
                             upperbound=100,
                             quality.index.threshold=0.75,
                             lowerbound=50) {
@@ -335,7 +318,6 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   
   
   Results=list()
-  #devtools::install_github('Zha0rong/ICARus')
   for (i in seq(optimal,optimal+numbers_of_parameter_for_reproducibility_test)) {
     ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,iteration = iteration,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,distance_measure = distance_measure,Hierarchical.clustering.method = Hierarchical.clustering.method,tol=tolerance,maxit=max.iteration)
     Results[[paste0('IC.',i)]]=ICAResults
@@ -381,7 +363,8 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   Clustered.Affiliation.matrix=do.call(cbind,Clustered.Affiliation.matrix)
   
   
-  correlation=WGCNA::adjacency(as.matrix(Clustered.Signature.matrix),power = 1)
+  correlation=coop::pcor(as.matrix(Clustered.Signature.matrix))
+  
   Disimilarity.fixed=1-abs(correlation)
   
   Reproducibility.clustering=Signature_Hierarchical_Clustering(Disimilarity.fixed,Affiliation.Matrix = Clustered.Affiliation.matrix,Signature.Matrix = Clustered.Signature.matrix,

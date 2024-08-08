@@ -1,5 +1,7 @@
 Package: ICARus
-Title: ICARus: an Independent component analysis tool for transcriptomic analysis based on icasso (J. Himberg et al., 2004).
+Title: ICARus: an Independent component analysis tool for
+        transcriptomic analysis based on icasso (J. Himberg et al.,
+        2004).
 Version: 1.0.0
 Authors@R: 
     person("Zhaorong", "Li", , "zhaorong@bu.edu", role = c("aut", "cre"),
@@ -9,34 +11,17 @@ License: MIT + file LICENSE
 URL: https://github.com/Zha0rong/ICArus
 BugReports: https://github.com/Zha0rong/ICArus/issues
 biocViews: GeneExpression, Transcription, DifferentialExpression
-Imports:
-    BiocGenerics (>= 0.7.5),
-    GO.db,
-    Biobase, 
-    BiocParallel,
-    GDAtools,
-    Rcpp,
-    Rfast,
-    WGCNA,
-    coop,
-    doParallel,
-    doSNOW,
-    foreach,
-    matrixStats,
-    reshape2,
-    rsvd,
-    snow,
-    truncnorm,
-    PCAtools,
-    impute, 
-    preprocessCore, 
-    pheatmap, 
-    matchingR,
-    fastICA
+Imports: BiocGenerics (>= 0.7.5), GO.db, Biobase, BiocParallel,
+        GDAtools, Rcpp, Rfast, coop, doParallel, doSNOW,
+        foreach, matrixStats, reshape2, rsvd, snow, truncnorm,
+        PCAtools, impute, preprocessCore, pheatmap, matchingR, fastICA
 VignetteBuilder: rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Depends: 
-    R (>= 2.10)
+Depends: R (>= 2.10)
 LazyData: true
+NeedsCompilation: no
+Packaged: 2024-08-08 13:01:11 UTC; zhaorong
+Author: Zhaorong Li [aut, cre] (<https://orcid.org/0000-0002-5268-6986>)
+Maintainer: Zhaorong Li <zhaorong@bu.edu>

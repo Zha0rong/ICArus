@@ -9,8 +9,8 @@ ICARus(
   numberofcomponents,
   iteration = 100,
   numberofcores = 2,
-  distance_measure = c("pearson", "euclidean"),
-  clustering_algorithm = c("Hierarchical", "MatchMaking"),
+  distance_measure = c("euclidean", "pearson"),
+  clustering_algorithm = c("Hierarchical"),
   Hierarchical.clustering.method = c("ward.D2", "ward.D", "single", "single", "complete",
     "average", "mcquitty", "median", "centroid"),
   ...
