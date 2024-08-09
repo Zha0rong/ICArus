@@ -154,9 +154,6 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' @param Matrix  A Matrix where rows are features and columns are observations.
 #' @return A list of one vector and one ggplot,
 #' @import ggplot2
-#' @import ggrepel
-#' @import PCAtools
-#' @import kneedle
 #' @export
 PCA.Estimation <- function(Matrix=NULL) {
   Normalized=Matrix
@@ -164,12 +161,12 @@ PCA.Estimation <- function(Matrix=NULL) {
   PCA=prcomp(t(Normalized),center=T,scale.=T)
   PCA.summary=summary(PCA)
   PCA.candidates=PCA.summary$importance[3,]
-  PCA.candidates=1/PCA.candidates
-  Results$ElbowPoint=kneedle::kneedle(seq(1,length(PCA.candidates)),PCA.candidates)[1]
+  PCA.candidates=PCA.candidates
+  Results$ElbowPoint=find_kneedle_point(seq(1,length(PCA.candidates)),PCA.candidates)[1]
   
   plot_data=data.frame(index=seq(1,length(PCA.candidates)),stdev=PCA.candidates)
   plot_data$label=ifelse(plot_data$index==Results$ElbowPoint,yes=paste0('Elbow Point: ',Results$ElbowPoint),no='')
-  Results$plot=ggplot(plot_data,aes(x=index,y=stdev,label=label))+geom_point(data = plot_data[plot_data$label == "",])+geom_text_repel(point.size =5)+geom_point(data = plot_data[plot_data$label != "",])+geom_vline(xintercept = Results$ElbowPoint,linewidth=1.0,colour='red',linetype="dotted")
+  Results$plot=ggplot(plot_data,aes(x=index,y=stdev,label=label))+geom_point(data = plot_data[plot_data$label == "",])+geom_point(data = plot_data[plot_data$label != "",])+geom_vline(xintercept = Results$ElbowPoint,linewidth=1.0,colour='red',linetype="dotted")
   return(Results)
 }
 
@@ -220,7 +217,6 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
   
   silhouettes=data.frame(silhouettes=(sils),resolution=seq(min_cluster,max_cluster))
   elbowpoint=which(silhouettes$silhouettes==max(silhouettes$silhouettes))
-    #as.integer(PCAtools::findElbowPoint(silhouettes$silhouettes*(-1)))
 
   #figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = silhouettes$resolution[silhouettes$silhouettes==max(silhouettes$silhouettes)])+ggtitle('Averaged Silhouettes Graph')
   figure=ggplot(silhouettes,aes(x=resolution,y=silhouettes))+geom_point()+geom_vline(xintercept = elbowpoint)+ggtitle('Averaged Silhouettes Graph')
@@ -281,7 +277,6 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @import coop
 #' @importFrom matrixStats rowMeans2
 #' @import Rfast
-#' @import PCAtools
 #' @import pheatmap
 #' @import fastICA
 #' @export
