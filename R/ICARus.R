@@ -12,7 +12,7 @@
 #' @param Hierarchical.clustering.method Choose which hierarchical clustering algorithm to use. The default is 'ward.D2'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @importFrom GDAtools medoids
-#' @import coop
+#' @import WGCNA
 #' @importFrom matrixStats rowMeans2
 #' @import Rfast
 #' @import fastICA
@@ -33,7 +33,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   Disimmilarity.Results=list()
   
   if (distance_measure=='pearson') {
-    correlation=coop::pcor(Signature.Matrix)
+    correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
     Disimilarity.fixed=1-abs(correlation)
     cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
     cluster=cutree(cluster,numberofcomponents)
@@ -48,7 +48,8 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
       cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)
       cluster=cutree(cluster,numberofcomponents)
       Disimmilarity.Results$Clustering.results.item$clustering=cluster
-
+      correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
+      
   }
 
 
@@ -60,8 +61,8 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   colnames(Clustered.Signature.matrix)=seq(1,ncol(Clustered.Signature.matrix))
   colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
   colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
-  correlation=coop::pcor(Signature.Matrix)
-  a=Cluster_Stability_Calculation(correlation,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = 6)
+  
+  a=Cluster_Stability_Calculation(correlation,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = numberofcores)
   a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
   b=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
   rownames(b)=b$Var1
@@ -90,7 +91,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 #' @param distance_measure Choose which distance measurement to use for signatures Currently the pipeline supports pearson correlation coefficient ('pearson') and euclidean distance ('euclidean'). The default is 'pearson'.
 #' @param Hierarchical.clustering.method Choose which hierarchical clustering algorithm to use. The default is 'ward.D2'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
-#' @import coop
+#' @import WGCNA
 #' @importFrom matrixStats rowMeans2
 #' @import Rfast
 #' @import fastICA
@@ -103,12 +104,8 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
   QC.Metrics=data.frame(ICs=parameter_set)
   QC.Metrics$IR=0
   QC.Metrics$MSE=0
-  faster_whiten=faster_ICA_whitening(Matrix)
   for (i in parameter_set){
     print(i)
-    temp=faster_whiten
-    temp$K <- matrix(temp$K[1:i, ], i, temp$p)
-    temp$X1 <- mat.mult(temp$K, temp$X)
     ICAResults=ParaICA(CountMatrix = Matrix,
                        numberofcomponents = i,iteration=iteration,numberofcores = numberofcores,...)
     Signature.Matrix=ICAResults$Signature.Matrix
@@ -121,7 +118,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
     Affiliation.Matrix=Corrected$Results.A
     rm(Corrected)
     if (distance_measure=='pearson') {
-      correlation=coop::pcor(as.matrix(Signature.Matrix))
+      correlation=WGCNA::adjacency(as.matrix(Signature.Matrix),power = 1)
       Disimilarity.fixed=1-(correlation)
         cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
         cluster=cutree(cluster,i)
@@ -158,7 +155,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 PCA.Estimation <- function(Matrix=NULL) {
   Normalized=Matrix
   Results=list()
-  PCA=prcomp(t(Normalized),center=T,scale.=T)
+  PCA=prcomp(t(Normalized),center=F,scale.=F)
   PCA.summary=summary(PCA)
   PCA.candidates=PCA.summary$importance[3,]
   PCA.candidates=PCA.candidates
@@ -274,7 +271,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @param quality.index.threshold For each parameter, the signatures obtained by fastICA are evaluated using the index proposed by icasso. The index ranges from 0 to 1, where 0 means unstable at all and 1 means perfectly stable. The threshold specify the lower bound of index for each signature.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @importFrom GDAtools medoids
-#' @import coop
+#' @import WGCNA
 #' @importFrom matrixStats rowMeans2
 #' @import Rfast
 #' @import pheatmap
@@ -358,7 +355,7 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   Clustered.Affiliation.matrix=do.call(cbind,Clustered.Affiliation.matrix)
   
   
-  correlation=coop::pcor(as.matrix(Clustered.Signature.matrix))
+  correlation=WGCNA::adjacency(as.matrix(Clustered.Signature.matrix),power = 1)
   
   Disimilarity.fixed=1-abs(correlation)
   
