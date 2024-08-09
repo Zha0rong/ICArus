@@ -86,31 +86,6 @@ Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity
   return(stability_indices)
 }
 
-#' Individual_Matching
-#' @description This function matches signatures from different iterations using galeShapley.marriageMarket
-#' @importFrom matchingR galeShapley.marriageMarket
-Individual_Matching <- function(Matrix,Group,ncluster) {
-  
-  selected=sample(unique(Group),1)
-  selected.matrix=Matrix[,names(Group)[Group==selected]]
-  ncluster=ncluster
-  reference=seq(1,ncluster)
-  names(reference)=colnames(selected.matrix)
-  results=reference
-  for (i in unique(Group)[unique(Group)!=selected]) {
-    match.reference=Matrix[names(Group)[Group==selected],names(Group)[Group==i]]
-    match.test=t(match.reference)
-    match=matchingR::galeShapley.marriageMarket(match.reference,match.test)
-    match=as.integer(match$proposals)
-    names(match)=colnames(match.reference)
-    results=c(results,match)
-  }
-  return(results)
-}
-
-
-
-
 
 #' Direction_correction
 #' @description This function is used to correct the direction of the signature from different runs.
