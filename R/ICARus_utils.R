@@ -127,7 +127,6 @@ Direction_correction = function (Signature.Matrix,Affiliation.Matrix,Group) {
 
 #' find_kneedle_point
 #' @description This function is used to correct the direction of the signature from different runs.
-
 find_kneedle_point <- function(x,y) {
   #Step 1 Format the table
   calculation_table=data.frame(x=x,y=y)
@@ -135,7 +134,10 @@ find_kneedle_point <- function(x,y) {
   calculation_table$xsn=(calculation_table$x-min(calculation_table$x))/(max(calculation_table$x)-min(calculation_table$x))
   calculation_table$ysn=(calculation_table$y-min(calculation_table$y))/(max(calculation_table$y)-min(calculation_table$y))
   # Step 3 (Figure 2b and figure 2c of the manuscript)
-  calculation_table$yd=calculation_table$ysn-calculation_table$xsn
-  return(which(calculation_table$yd==max(calculation_table$yd)))
+  calculation_table$yd=abs(calculation_table$ysn-calculation_table$xsn)
+  
+  #calculation_table$t=calculation_table$yd-mean(diff(calculation_table$xsn))
+  
+  return(which(calculation_table$t==max(calculation_table$t)))
 }
 

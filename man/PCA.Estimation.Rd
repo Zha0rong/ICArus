@@ -4,7 +4,10 @@
 \alias{PCA.Estimation}
 \title{PCA.Estimation}
 \usage{
-PCA.Estimation(Matrix = NULL)
+PCA.Estimation(
+  Matrix = NULL,
+  measure = c("standard_deviation", "cumulative_proportion")
+)
 }
 \arguments{
 \item{Matrix}{A Matrix where rows are features and columns are observations.}

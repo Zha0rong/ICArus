@@ -151,15 +151,19 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' @param Matrix  A Matrix where rows are features and columns are observations.
 #' @return A list of one vector and one ggplot,
 #' @import ggplot2
+#' @import kneedle
+
 #' @export
-PCA.Estimation <- function(Matrix=NULL) {
+PCA.Estimation <- function(Matrix=NULL,measure=c('standard_deviation','cumulative_proportion')) {
+  measure=match.arg(measure)
+  
   Normalized=Matrix
   Results=list()
   PCA=prcomp(t(Normalized),center=F,scale.=F)
   PCA.summary=summary(PCA)
-  PCA.candidates=PCA.summary$importance[3,]
+  PCA.candidates=PCA.summary$importance[ifelse(measure=='standard_deviation',yes = 1,no = 3),]
   PCA.candidates=PCA.candidates
-  Results$ElbowPoint=find_kneedle_point(seq(1,length(PCA.candidates)),PCA.candidates)[1]
+  Results$ElbowPoint=kneedle(seq(1,length(PCA.candidates)),PCA.candidates)[1]#find_kneedle_point(seq(1,length(PCA.candidates)),PCA.candidates)[1]
   
   plot_data=data.frame(index=seq(1,length(PCA.candidates)),stdev=PCA.candidates)
   plot_data$label=ifelse(plot_data$index==Results$ElbowPoint,yes=paste0('Elbow Point: ',Results$ElbowPoint),no='')
