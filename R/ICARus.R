@@ -298,16 +298,6 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   Overall.Results=list()
 
   Normalized=Matrix
-  Matrix=t(Rfast::standardise(t(Normalized),scale = F))
-  rownames(Matrix)=rownames(Normalized)
-  colnames(Matrix)=colnames(Normalized)
-  
-  Matrix=(Rfast::standardise((Matrix),scale = F))
-  rownames(Matrix)=rownames(Normalized)
-  colnames(Matrix)=colnames(Normalized)
-  
-  
-  
   Estimation=PCA.Estimation(Matrix = Normalized)
   Overall.Results[["PCA_Elbow_Plot"]]=Estimation$plot
   optimal=Estimation$ElbowPoint
