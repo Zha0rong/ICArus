@@ -414,16 +414,12 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
 #' @description 
 #' This function is the main function of the package ICARus. The function automatically estimates the number of independent components to extract and output the most stable ones.
 #' @param Matrix  A Matrix where rows are features and columns are observations. The count matrix needs to be normalized and log transformed before being input.
-#' @param iteration The number of iterations of ICA to be run, default is 100.
 #' @param numberofcores Number of cores to use. The default is 2.
 #' @param clustering_algorithm Choose which clustering algorithm to use. Currently the pipeline supports Hierarchical clustering ('Hierarchical') and a clustering method based on Gale Shapely Algorithm ('MatchMaking'). The default is 'Hierarchical'.
 #' @param distance_measure Choose which distance measurement to use for signatures Currently the pipeline supports pearson correlation coefficient ('pearson') and euclidean distance ('euclidean'). The default is 'pearson'.
 #' @param Hierarchical.clustering.method Choose which hierarchical clustering algorithm to use. The default is 'ward.D2'.
 #' @param tolerance The tolerance input for fastICA to converge, the default is 1e-10.
 #' @param max.iteration The maximum number of iteration of fastICA. Default is 10000.
-#' @param upperbound For each parameter x the fastICA is performed y times specified by user. Then the clustering algorithm will cluster the resultsinto x clusters. Ideally each cluster will have the size of y, but that is not always the case. This parameter sets the upper bound for the size of the cluster for the signature to be considered 'stable'.
-#' @param lowerbound For each parameter x the fastICA is performed y times specified by user. Then the clustering algorithm will cluster the resultsinto x clusters. Ideally each cluster will have the size of y, but that is not always the case. This parameter sets the lower bound for the size of the cluster for the signature to be considered 'stable'.
-#' @param quality.index.threshold For each parameter, the signatures obtained by fastICA are evaluated using the index proposed by icasso. The index ranges from 0 to 1, where 0 means unstable at all and 1 means perfectly stable. The threshold specify the lower bound of index for each signature.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @importFrom GDAtools medoids
 #' @import WGCNA
@@ -456,7 +452,7 @@ ICARus_ultrafast <- function(Matrix,numberofcores=4,
   
   cl <- snow::makeCluster(numberofcores)
   doSNOW::registerDoSNOW(cl)
-  pb <- txtProgressBar(max = iteration, style = 3)
+  pb <- txtProgressBar(max = numbers_of_parameter_for_reproducibility_test, style = 3)
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
   x=foreach::foreach(i=seq(0,(numbers_of_parameter_for_reproducibility_test-1)),.packages=c('fastICA'), .options.snow = opts) %dopar% {

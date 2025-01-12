@@ -30,14 +30,6 @@ ICARus_ultrafast(
 \item{tolerance}{The tolerance input for fastICA to converge, the default is 1e-10.}
 
 \item{max.iteration}{The maximum number of iteration of fastICA. Default is 10000.}
-
-\item{iteration}{The number of iterations of ICA to be run, default is 100.}
-
-\item{upperbound}{For each parameter x the fastICA is performed y times specified by user. Then the clustering algorithm will cluster the resultsinto x clusters. Ideally each cluster will have the size of y, but that is not always the case. This parameter sets the upper bound for the size of the cluster for the signature to be considered 'stable'.}
-
-\item{lowerbound}{For each parameter x the fastICA is performed y times specified by user. Then the clustering algorithm will cluster the resultsinto x clusters. Ideally each cluster will have the size of y, but that is not always the case. This parameter sets the lower bound for the size of the cluster for the signature to be considered 'stable'.}
-
-\item{quality.index.threshold}{For each parameter, the signatures obtained by fastICA are evaluated using the index proposed by icasso. The index ranges from 0 to 1, where 0 means unstable at all and 1 means perfectly stable. The threshold specify the lower bound of index for each signature.}
 }
 \value{
 Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
