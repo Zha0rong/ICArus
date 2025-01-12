@@ -456,7 +456,7 @@ ICARus_ultrafast <- function(Matrix,numberofcores=4,
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
   x=foreach::foreach(i=seq(0,(numbers_of_parameter_for_reproducibility_test-1)),.packages=c('fastICA'), .options.snow = opts) %dopar% {
-    resICA=fastICA(Matrix,n.comp = start_point+i,method = 'C',maxit=max.iteration,tol=tolerance)
+    resICA=fastICA(Matrix,n.comp = optimal+i,method = 'C',maxit=max.iteration,tol=tolerance)
     Affiliation.Matrix=(as.matrix(resICA$A))
     Signature.Matrix=(as.matrix(resICA$S))
     rownames(Affiliation.Matrix)=paste0('n.',seq(1,nrow(Affiliation.Matrix)))
