@@ -160,7 +160,7 @@ PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standa
   
   Normalized=Matrix
   Results=list()
-  PCA=prcomp(t(Normalized),center=T,scale.=T)
+  PCA=prcomp(t(Normalized),center=F,scale.=F)
   PCA.summary=summary(PCA)
   PCA.candidates=PCA.summary$importance[ifelse(measure=='standard_deviation',yes = 1,no = 3),]
   PCA.candidates=PCA.candidates
