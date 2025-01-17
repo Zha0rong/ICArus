@@ -6,6 +6,7 @@
 \usage{
 ICARus_complete(
   Matrix,
+  measure = c("cumulative_proportion", "standard_deviation"),
   iteration = 100,
   numberofcores = 4,
   numbers_of_parameter_for_reproducibility_test = 10,
@@ -22,6 +23,8 @@ ICARus_complete(
 }
 \arguments{
 \item{Matrix}{A Matrix where rows are features and columns are observations. The count matrix needs to be normalized and log transformed before being input.}
+
+\item{measure}{How to estimate the number of independent components. Default is cumulative_proportion.}
 
 \item{iteration}{The number of iterations of ICA to be run, default is 100.}
 

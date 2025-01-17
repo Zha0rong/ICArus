@@ -149,12 +149,13 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' @description 
 #' This function performs PCA analysis on a given matrix, and estimate the best number of independent components by finding the elbow point in the variance explained elbow plot.
 #' @param Matrix  A Matrix where rows are features and columns are observations.
+#' @param measure How to estimate the number of independent components. Default is cumulative_proportion.
 #' @return A list of one vector and one ggplot,
 #' @import ggplot2
 #' @import kneedle
 
 #' @export
-PCA.Estimation <- function(Matrix=NULL,measure=c('standard_deviation','cumulative_proportion')) {
+PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standard_deviation')) {
   measure=match.arg(measure)
   
   Normalized=Matrix
@@ -263,6 +264,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @description 
 #' This function is the main function of the package ICARus. The function automatically estimates the number of independent components to extract and output the most stable ones.
 #' @param Matrix  A Matrix where rows are features and columns are observations. The count matrix needs to be normalized and log transformed before being input.
+#' @param measure How to estimate the number of independent components. Default is cumulative_proportion.
 #' @param iteration The number of iterations of ICA to be run, default is 100.
 #' @param numberofcores Number of cores to use. The default is 2.
 #' @param clustering_algorithm Choose which clustering algorithm to use. Currently the pipeline supports Hierarchical clustering ('Hierarchical') and a clustering method based on Gale Shapely Algorithm ('MatchMaking'). The default is 'Hierarchical'.
@@ -281,7 +283,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @import pheatmap
 #' @import fastICA
 #' @export
-ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
+ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_deviation'),iteration=100,numberofcores=4,
                             numbers_of_parameter_for_reproducibility_test=10,
                             distance_measure=c('pearson','euclidean'),
                             clustering_algorithm=c('Hierarchical'),
@@ -294,11 +296,12 @@ ICARus_complete <- function(Matrix,iteration=100,numberofcores=4,
   distance_measure=match.arg(distance_measure)
   clustering_algorithm=match.arg(clustering_algorithm)
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
+  measure=match.arg(measure)
   
   Overall.Results=list()
 
   Normalized=Matrix
-  Estimation=PCA.Estimation(Matrix = Normalized)
+  Estimation=PCA.Estimation(Matrix = Normalized,measure=measure)
   Overall.Results[["PCA_Elbow_Plot"]]=Estimation$plot
   optimal=Estimation$ElbowPoint
   
