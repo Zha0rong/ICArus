@@ -199,10 +199,10 @@ faster_ICA <- function (whitening_list,n.comp, alg.typ = c("parallel","deflation
 #' @import snow
 
 ParaICA <- function(CountMatrix,numberofcomponents,iteration,numberofcores=2,...) {
-  faster_whiten=faster_ICA_whitening(CountMatrix)
-  faster_whiten$K <- matrix(faster_whiten$K[1:numberofcomponents, ], numberofcomponents, faster_whiten$p)
+  #faster_whiten=faster_ICA_whitening(CountMatrix)
+  #faster_whiten$K <- matrix(faster_whiten$K[1:numberofcomponents, ], numberofcomponents, faster_whiten$p)
   
-  faster_whiten$X1 <- Rfast::mat.mult(faster_whiten$K, faster_whiten$X)
+  #faster_whiten$X1 <- Rfast::mat.mult(faster_whiten$K, faster_whiten$X)
   
   cl <- snow::makeCluster(numberofcores)
   doSNOW::registerDoSNOW(cl)
