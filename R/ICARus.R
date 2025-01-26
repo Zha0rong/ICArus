@@ -159,7 +159,7 @@ PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standa
   measure=match.arg(measure)
   
   Normalized=Matrix
-  Normalized=scale(Normalized)
+  Normalized=scale(Normalized,center = T,scale = T)
   rownames(Matrix)=rownames(Matrix)
   colnames(Matrix)=colnames(Matrix)
 
