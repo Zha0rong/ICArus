@@ -170,7 +170,7 @@ PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standa
   Results=list()
   PCA=prcomp(t(Normalized),center=F,scale.=F)
   PCA.summary=summary(PCA)
-  PCA.candidates=PCA.summary$importance[ifelse(measure=='standard_deviation',yes = 1,no = 3),]
+  PCA.candidates=smooth(PCA.summary$importance[ifelse(measure=='standard_deviation',yes = 1,no = 3),])
   PCA.candidates=PCA.candidates
   Results$ElbowPoint=kneedle(seq(1,length(PCA.candidates)),PCA.candidates)[1]#find_kneedle_point(seq(1,length(PCA.candidates)),PCA.candidates)[1]
   
