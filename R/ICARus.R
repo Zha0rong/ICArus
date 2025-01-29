@@ -318,9 +318,9 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
   Results=list()
   for (i in seq(optimal,(optimal+numbers_of_parameter_for_reproducibility_test-1))) {
     ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,
-      iteration = iteration,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,
+      iteration = iteration,scale=scale,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,
       distance_measure = distance_measure,Hierarchical.clustering.method = Hierarchical.clustering.method,
-      tol=tolerance,maxit=max.iteration,scale=scale)
+      tol=tolerance,maxit=max.iteration)
     Results[[paste0('IC.',i)]]=ICAResults
     rm(ICAResults)
   }
