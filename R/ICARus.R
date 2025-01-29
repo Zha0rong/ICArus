@@ -17,11 +17,14 @@
 #' @import Rfast
 #' @import fastICA
 #' @export
-ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),clustering_algorithm=c('Hierarchical'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),...) {
+ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,distance_measure=c('pearson','euclidean'),
+  clustering_algorithm=c('Hierarchical'),Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),
+  scale=T,
+  ...) {
   distance_measure=match.arg(distance_measure)
   clustering_algorithm=match.arg(clustering_algorithm)
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
-  ICAResults=ParaICA(Matrix,numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,...)
+  ICAResults=ParaICA(Matrix,numberofcomponents = numberofcomponents,iteration = iteration,numberofcores = numberofcores,scale=scale,...)
 
   Signature.Matrix=as.matrix(ICAResults$Signature.Matrix)
   Affiliation.Matrix=as.matrix(ICAResults$Affiliation.Matrix)
@@ -150,16 +153,17 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' This function performs PCA analysis on a given matrix, and estimate the best number of independent components by finding the elbow point in the variance explained elbow plot.
 #' @param Matrix  A Matrix where rows are features and columns are observations.
 #' @param measure How to estimate the number of independent components. Default is cumulative_proportion.
+#' @param scale Whether scale by column. Default is T
 #' @return A list of one vector and one ggplot,
 #' @import ggplot2
 #' @import kneedle
 
 #' @export
-PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standard_deviation')) {
+PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standard_deviation'),scale=T) {
   measure=match.arg(measure)
   
   Normalized=Matrix
-  Normalized=scale(Normalized,center = T,scale = T)
+  Normalized=scale(Normalized,center = T,scale = scale)
   rownames(Matrix)=rownames(Matrix)
   colnames(Matrix)=colnames(Matrix)
 
@@ -292,6 +296,7 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
                             distance_measure=c('pearson','euclidean'),
                             clustering_algorithm=c('Hierarchical'),
                             Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),
+                            scale=T,
                             tolerance=1e-6,
                             max.iteration=1000,
                             upperbound=100,
@@ -305,14 +310,17 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
   Overall.Results=list()
 
   Normalized=Matrix
-  Estimation=PCA.Estimation(Matrix = Normalized,measure=measure)
+  Estimation=PCA.Estimation(Matrix = Normalized,measure=measure,scale=scale)
   Overall.Results[["PCA_Elbow_Plot"]]=Estimation$plot
   optimal=Estimation$ElbowPoint
   
   
   Results=list()
   for (i in seq(optimal,(optimal+numbers_of_parameter_for_reproducibility_test-1))) {
-    ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,iteration = iteration,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,distance_measure = distance_measure,Hierarchical.clustering.method = Hierarchical.clustering.method,tol=tolerance,maxit=max.iteration)
+    ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,
+      iteration = iteration,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,
+      distance_measure = distance_measure,Hierarchical.clustering.method = Hierarchical.clustering.method,
+      tol=tolerance,maxit=max.iteration,,scale=scale)
     Results[[paste0('IC.',i)]]=ICAResults
     rm(ICAResults)
   }

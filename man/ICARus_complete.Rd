@@ -14,6 +14,7 @@ ICARus_complete(
   clustering_algorithm = c("Hierarchical"),
   Hierarchical.clustering.method = c("ward.D2", "ward.D", "single", "single", "complete",
     "average", "mcquitty", "median", "centroid"),
+  scale = T,
   tolerance = 1e-06,
   max.iteration = 1000,
   upperbound = 100,

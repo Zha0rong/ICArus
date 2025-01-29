@@ -198,7 +198,7 @@ faster_ICA <- function (whitening_list,n.comp, alg.typ = c("parallel","deflation
 #' @import Rfast
 #' @import snow
 
-ParaICA <- function(CountMatrix,numberofcomponents,iteration,numberofcores=2,...) {
+ParaICA <- function(CountMatrix,numberofcomponents,iteration,numberofcores=2,scale=T,...) {
   #faster_whiten=faster_ICA_whitening(CountMatrix)
   #faster_whiten$K <- matrix(faster_whiten$K[1:numberofcomponents, ], numberofcomponents, faster_whiten$p)
   
@@ -210,7 +210,7 @@ ParaICA <- function(CountMatrix,numberofcomponents,iteration,numberofcores=2,...
   progress <- function(n) setTxtProgressBar(pb, n)
   opts <- list(progress = progress)
   x=foreach::foreach(i=seq(1,iteration),.packages=c('fastICA','Rfast'), .options.snow = opts) %dopar% {
-    resICA=fastICA(CountMatrix,n.comp = numberofcomponents,row.norm = T,method='C',...)#faster_ICA(faster_whiten,row.norm = F,n.comp = numberofcomponents,...)
+    resICA=fastICA(CountMatrix,n.comp = numberofcomponents,row.norm = scale,method='C',...)#faster_ICA(faster_whiten,row.norm = F,n.comp = numberofcomponents,...)
     Affiliation.Matrix=(as.matrix(resICA$A))
     Signature.Matrix=(as.matrix(resICA$S))
     rownames(Affiliation.Matrix)=paste0('n.',seq(1,nrow(Affiliation.Matrix)))

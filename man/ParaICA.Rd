@@ -4,7 +4,14 @@
 \alias{ParaICA}
 \title{ParaICA}
 \usage{
-ParaICA(CountMatrix, numberofcomponents, iteration, numberofcores = 2, ...)
+ParaICA(
+  CountMatrix,
+  numberofcomponents,
+  iteration,
+  numberofcores = 2,
+  scale = T,
+  ...
+)
 }
 \description{
 This function runs ICA using multiple threads.

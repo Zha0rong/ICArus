@@ -6,13 +6,16 @@
 \usage{
 PCA.Estimation(
   Matrix = NULL,
-  measure = c("cumulative_proportion", "standard_deviation")
+  measure = c("cumulative_proportion", "standard_deviation"),
+  scale = T
 )
 }
 \arguments{
 \item{Matrix}{A Matrix where rows are features and columns are observations.}
 
 \item{measure}{How to estimate the number of independent components. Default is cumulative_proportion.}
+
+\item{scale}{Whether scale by column. Default is T}
 }
 \value{
 A list of one vector and one ggplot,

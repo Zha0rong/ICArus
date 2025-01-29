@@ -13,6 +13,7 @@ ICARus(
   clustering_algorithm = c("Hierarchical"),
   Hierarchical.clustering.method = c("ward.D2", "ward.D", "single", "single", "complete",
     "average", "mcquitty", "median", "centroid"),
+  scale = T,
   ...
 )
 }
