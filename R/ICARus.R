@@ -320,7 +320,7 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
     ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,
       iteration = iteration,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,
       distance_measure = distance_measure,Hierarchical.clustering.method = Hierarchical.clustering.method,
-      tol=tolerance,maxit=max.iteration,,scale=scale)
+      tol=tolerance,maxit=max.iteration,scale=scale)
     Results[[paste0('IC.',i)]]=ICAResults
     rm(ICAResults)
   }
