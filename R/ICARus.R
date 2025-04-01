@@ -12,7 +12,6 @@
 #' @param Hierarchical.clustering.method Choose which hierarchical clustering algorithm to use. The default is 'ward.D2'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @importFrom GDAtools medoids
-#' @import WGCNA
 #' @importFrom matrixStats rowMeans2
 #' @import Rfast
 #' @import fastICA
@@ -36,7 +35,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   Disimmilarity.Results=list()
   
   if (distance_measure=='pearson') {
-    correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
+    correlation=Rfast::cora(Signature.Matrix)
     Disimilarity.fixed=1-abs(correlation)
     cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
     cluster=cutree(cluster,numberofcomponents)
@@ -51,7 +50,7 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
       cluster=hclust(as.dist(correlation),method = Hierarchical.clustering.method)
       cluster=cutree(cluster,numberofcomponents)
       Disimmilarity.Results$Clustering.results.item$clustering=cluster
-      correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
+      correlation=Rfast::cora(Signature.Matrix)
       
   }
 
@@ -94,7 +93,6 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
 #' @param distance_measure Choose which distance measurement to use for signatures Currently the pipeline supports pearson correlation coefficient ('pearson') and euclidean distance ('euclidean'). The default is 'pearson'.
 #' @param Hierarchical.clustering.method Choose which hierarchical clustering algorithm to use. The default is 'ward.D2'.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
-#' @import WGCNA
 #' @importFrom matrixStats rowMeans2
 #' @import Rfast
 #' @import fastICA
@@ -121,7 +119,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
     Affiliation.Matrix=Corrected$Results.A
     rm(Corrected)
     if (distance_measure=='pearson') {
-      correlation=WGCNA::adjacency(as.matrix(Signature.Matrix),power = 1)
+      correlation=Rfast::cora(as.matrix(Signature.Matrix))
       Disimilarity.fixed=1-(correlation)
         cluster=hclust(d = as.dist(Disimilarity.fixed),method = Hierarchical.clustering.method)
         cluster=cutree(cluster,i)
@@ -287,7 +285,6 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @param quality.index.threshold For each parameter, the signatures obtained by fastICA are evaluated using the index proposed by icasso. The index ranges from 0 to 1, where 0 means unstable at all and 1 means perfectly stable. The threshold specify the lower bound of index for each signature.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @importFrom GDAtools medoids
-#' @import WGCNA
 #' @importFrom matrixStats rowMeans2
 #' @import Rfast
 #' @import pheatmap
@@ -366,7 +363,7 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
   Clustered.Affiliation.matrix=do.call(cbind,Clustered.Affiliation.matrix)
   
   
-  correlation=WGCNA::adjacency(as.matrix(Clustered.Signature.matrix),power = 1)
+  correlation=Rfast::cora(as.matrix(Clustered.Signature.matrix))
   
   Disimilarity.fixed=1-abs(correlation)
   
@@ -439,7 +436,6 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
 #' @param max.iteration The maximum number of iteration of fastICA. Default is 10000.
 #' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
 #' @importFrom GDAtools medoids
-#' @import WGCNA
 #' @importFrom matrixStats rowMeans2
 #' @import Rfast
 #' @import pheatmap
@@ -512,7 +508,7 @@ ICARus_ultrafast <- function(Matrix,numberofcores=4,
   
   
   if (distance_measure=='pearson') {
-    correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
+    correlation=Rfast::cora(Signature.Matrix)
     Disimilarity.fixed=1-abs(correlation)
     
   } else if (distance_measure=='euclidean') {
@@ -520,7 +516,7 @@ ICARus_ultrafast <- function(Matrix,numberofcores=4,
     colnames(correlation)=colnames(Signature.Matrix)
     rownames(correlation)=colnames(Signature.Matrix)
     Disimilarity.fixed=correlation
-    correlation=WGCNA::adjacency(Signature.Matrix,power = 1)
+    correlation=Rfast::cora(Signature.Matrix)
   }
   
   

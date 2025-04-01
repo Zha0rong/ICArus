@@ -11,13 +11,13 @@ License: MIT + file LICENSE
 URL: https://github.com/Zha0rong/ICArus
 BugReports: https://github.com/Zha0rong/ICArus/issues
 biocViews: GeneExpression, Transcription, DifferentialExpression
-Imports: GDAtools, Rcpp, Rfast, WGCNA, doParallel, doSNOW,
+Imports: GDAtools, Rcpp, Rfast, doParallel, doSNOW,
         foreach, matrixStats, reshape2, rsvd, snow, truncnorm,
         preprocessCore, pheatmap, fastICA, kneedle
 VignetteBuilder: rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Depends: R (>= 2.10)
 LazyData: true
 NeedsCompilation: no
