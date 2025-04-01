@@ -64,14 +64,16 @@ ICARus <- function(Matrix,numberofcomponents,iteration=100,numberofcores=2,dista
   colnames(Clustered.Signature.matrix)=paste('signature.',colnames(Clustered.Signature.matrix),sep = '')
   colnames(Clustered.Affiliation.matrix)=paste('signature.',colnames(Clustered.Affiliation.matrix),sep = '')
   
-  a=Cluster_Stability_Calculation(correlation,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = numberofcores)
-  a=data.frame(ICs=rep(numberofcomponents,length(a)),ClusterNumber=names(a),QualityIndex=a)
-  b=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
-  rownames(b)=b$Var1
-  colnames(b)=c('ClusterNumber','SignatureNumber')
-  a=merge(a,b,by='ClusterNumber')
-  Cluster.Quality=a
-  rm(a,b)
+  Cluster_Quality=Cluster_Stability_Calculation(correlation,Clustering_identity = Disimmilarity.Results$Clustering.results.item$clustering,numberofcores = numberofcores)
+  Cluster_Quality=data.frame(ICs=rep(numberofcomponents,length(Cluster_Quality)),
+                             ClusterNumber=names(Cluster_Quality),
+                             QualityIndex=Cluster_Quality)
+  Cluster_Size=data.frame(table(Disimmilarity.Results$Clustering.results.item$clustering))
+  rownames(Cluster_Size)=Cluster_Size$Var1
+  colnames(Cluster_Size)=c('ClusterNumber','SignatureNumber')
+  Cluster_Quality=merge(Cluster_Quality,Cluster_Size,by='ClusterNumber')
+  Cluster.Quality=Cluster_Quality
+  rm(Cluster_Quality,Cluster_Size)
   
   return(list(Clustered.Signature.matrix=Clustered.Signature.matrix,
               Clustered.Affiliation.matrix=Clustered.Affiliation.matrix,
@@ -125,13 +127,13 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
         cluster=cutree(cluster,i)
         Disimmilarity.Results$Clustering.results.item$clustering=cluster
     }
-    a=Cluster_Stability_Calculation((correlation),Clustering_identity = Disimmilarity.Results$Clustering.results$clustering,numberofcores = numberofcores)
-    a=data.frame(ICs=rep(i,length(a)),ClusterNumber=names(a),QualityIndex=a)
-    b=data.frame(table(Disimmilarity.Results$Clustering.results$clustering))
-    rownames(b)=b$Var1
-    colnames(b)=c('ClusterNumber','SignatureNumber')
-    a=merge(a,b,by='ClusterNumber')
-    ICA.Tests.list[[i]]=a
+    Cluster_Quality=Cluster_Stability_Calculation((correlation),Clustering_identity = Disimmilarity.Results$Clustering.results$clustering,numberofcores = numberofcores)
+    Cluster_Quality=data.frame(ICs=rep(i,length(Cluster_Quality)),ClusterNumber=names(Cluster_Quality),QualityIndex=Cluster_Quality)
+    Cluster_Size=data.frame(table(Disimmilarity.Results$Clustering.results$clustering))
+    rownames(Cluster_Size)=Cluster_Size$Var1
+    colnames(Cluster_Size)=c('ClusterNumber','SignatureNumber')
+    Cluster_Quality=merge(Cluster_Quality,Cluster_Size,by='ClusterNumber')
+    ICA.Tests.list[[i]]=Cluster_Quality
   }
   ICA.Tests=ICA.Tests.list
   ICA.Tests=do.call(rbind,ICA.Tests)
@@ -351,9 +353,11 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
   if (length(names(Filtered.Results)))
   for (run in names(Filtered.Results)) {
     Run=Filtered.Results[[run]]
+    #CS is the Clustered.Signature.matrix in this run
     CS=Run$Clustered.Signature.matrix
     colnames(CS)=paste0(run,'.',colnames(CS))
     Clustered.Signature.matrix[[run]]=CS
+    #CA is the Clustered.Affiliation.matrix in this run
     
     CA=Run$Clustered.Signature.matrix
     colnames(CA)=paste0(run,'.',colnames(CA))
@@ -373,14 +377,14 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
   
   
   
-  a=Cluster_Stability_Calculation(correlation,Clustering_identity = Reproducibility.clustering$Clustering.results,numberofcores = numberofcores)
-  a=data.frame(ICs=rep(optimal,length(a)),ClusterNumber=names(a),QualityIndex=a)
-  b=data.frame(table(Reproducibility.clustering$Clustering.results))
-  rownames(b)=b$Var1
-  colnames(b)=c('ClusterNumber','SignatureNumber')
-  a=merge(a,b,by='ClusterNumber')
+  Cluster_Quality=Cluster_Stability_Calculation(correlation,Clustering_identity = Reproducibility.clustering$Clustering.results,numberofcores = numberofcores)
+  Cluster_Quality=data.frame(ICs=rep(optimal,length(Cluster_Quality)),ClusterNumber=names(Cluster_Quality),QualityIndex=Cluster_Quality)
+  Cluster_Size=data.frame(table(Reproducibility.clustering$Clustering.results))
+  rownames(Cluster_Size)=Cluster_Size$Var1
+  colnames(Cluster_Size)=c('ClusterNumber','SignatureNumber')
+  Cluster_Quality=merge(Cluster_Quality,Cluster_Size,by='ClusterNumber')
   
-  Overall.Results[["Quality_Index_of_Reproducible_Signatures"]]=a
+  Overall.Results[["Quality_Index_of_Reproducible_Signatures"]]=Cluster_Quality
   
   
   
@@ -423,155 +427,3 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
 }
 
 
-
-#' ICARus_ultrafast
-#' @description 
-#' This function is the main function of the package ICARus. The function automatically estimates the number of independent components to extract and output the most stable ones.
-#' @param Matrix  A Matrix where rows are features and columns are observations. The count matrix needs to be normalized and log transformed before being input.
-#' @param numberofcores Number of cores to use. The default is 2.
-#' @param clustering_algorithm Choose which clustering algorithm to use. Currently the pipeline supports Hierarchical clustering ('Hierarchical') and a clustering method based on Gale Shapely Algorithm ('MatchMaking'). The default is 'Hierarchical'.
-#' @param distance_measure Choose which distance measurement to use for signatures Currently the pipeline supports pearson correlation coefficient ('pearson') and euclidean distance ('euclidean'). The default is 'pearson'.
-#' @param Hierarchical.clustering.method Choose which hierarchical clustering algorithm to use. The default is 'ward.D2'.
-#' @param tolerance The tolerance input for fastICA to converge, the default is 1e-10.
-#' @param max.iteration The maximum number of iteration of fastICA. Default is 10000.
-#' @return Three Matrix: 1. Stability of independent components. 2. The "A" matrix from ICA. 3. The "S" matrix from ICA.
-#' @importFrom GDAtools medoids
-#' @importFrom matrixStats rowMeans2
-#' @import Rfast
-#' @import pheatmap
-#' @import fastICA
-#' @export
-
-
-ICARus_ultrafast <- function(Matrix,numberofcores=4,
-                            numbers_of_parameter_for_reproducibility_test=10,
-                            distance_measure=c('pearson','euclidean'),
-                            clustering_algorithm=c('Hierarchical'),
-                            Hierarchical.clustering.method=c('ward.D2','ward.D','single',"single", "complete", "average","mcquitty","median","centroid"),
-                            tolerance=1e-10,
-                            max.iteration=50000) {
-  
-  
-  distance_measure=match.arg(distance_measure)
-  clustering_algorithm=match.arg(clustering_algorithm)
-  Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
-  
-  Overall.Results=list()
-  
-  Estimation=PCA.Estimation(Matrix = Matrix)
-  Overall.Results[["PCA_Elbow_Plot"]]=Estimation$plot
-  optimal=Estimation$ElbowPoint
-  
-  
-  cl <- snow::makeCluster(numberofcores)
-  doSNOW::registerDoSNOW(cl)
-  pb <- txtProgressBar(max = numbers_of_parameter_for_reproducibility_test, style = 3)
-  progress <- function(n) setTxtProgressBar(pb, n)
-  opts <- list(progress = progress)
-  x=foreach::foreach(i=seq(0,(numbers_of_parameter_for_reproducibility_test-1)),.packages=c('fastICA'), .options.snow = opts) %dopar% {
-    resICA=fastICA(Matrix,n.comp = optimal+i,method = 'C',maxit=max.iteration,tol=tolerance)
-    Affiliation.Matrix=(as.matrix(resICA$A))
-    Signature.Matrix=(as.matrix(resICA$S))
-    rownames(Affiliation.Matrix)=paste0('n.',seq(1,nrow(Affiliation.Matrix)))
-    colnames(Affiliation.Matrix)=colnames(Matrix)
-    colnames(Signature.Matrix)=paste0('n','.',seq(1,ncol((Signature.Matrix))))
-    rownames(Signature.Matrix)=rownames(Matrix)
-    Affiliation.Matrix=t(Affiliation.Matrix)
-    Results=list()
-    Results[['Affiliation.Matrix']]=Affiliation.Matrix
-    Results[['Signature.Matrix']]=Signature.Matrix
-    return(Results)
-  }
-  close(pb)
-  snow::stopCluster(cl)
-  Affiliation.Matrix=list()
-  Signature.Matrix=list()
-  Signature.Matrix=list()
-  for (i in 1:length(x)) {
-    tmp=x[[i]][['Affiliation.Matrix']]
-    colnames(tmp)=paste0('iteration.',i,'_',colnames(tmp))
-    Affiliation.Matrix[[i]]=tmp
-    tmp=x[[i]][['Signature.Matrix']]
-    colnames(tmp)=paste0('iteration.',i,'_',colnames(tmp))
-    Signature.Matrix[[i]]=tmp
-  }
-  Affiliation.Matrix=do.call(cbind,Affiliation.Matrix)
-  Signature.Matrix=do.call(cbind,Signature.Matrix)
-  Group=stringr::str_split_fixed(colnames(Signature.Matrix),pattern = '_',n=2)[,1]
-  names(Group)=colnames(Signature.Matrix)
-  
-  
-  Corrected=Direction_correction(Signature.Matrix,Affiliation.Matrix,Group)
-  Signature.Matrix=Corrected$Results.S
-  Affiliation.Matrix=Corrected$Results.A
-  
-  
-  
-  if (distance_measure=='pearson') {
-    correlation=Rfast::cora(Signature.Matrix)
-    Disimilarity.fixed=1-abs(correlation)
-    
-  } else if (distance_measure=='euclidean') {
-    correlation=as.matrix(Rfast::Dist(t(Signature.Matrix),method = 'euclidean'))
-    colnames(correlation)=colnames(Signature.Matrix)
-    rownames(correlation)=colnames(Signature.Matrix)
-    Disimilarity.fixed=correlation
-    correlation=Rfast::cora(Signature.Matrix)
-  }
-  
-  
-  Reproducibility.clustering=Signature_Hierarchical_Clustering(Disimilarity.fixed,Affiliation.Matrix = Affiliation.Matrix,Signature.Matrix = Signature.Matrix,
-                                                               min_cluster = 2,max_cluster = ifelse(nrow(Disimilarity.fixed)/2>100,yes=100,no=nrow(Disimilarity.fixed)-1),
-                                                               numberofcores = numberofcores,method=Hierarchical.clustering.method)
-  
-  
-  
-  
-  a=Cluster_Stability_Calculation(correlation,Clustering_identity = Reproducibility.clustering$Clustering.results,numberofcores = numberofcores)
-  a=data.frame(ICs=rep(optimal,length(a)),ClusterNumber=names(a),QualityIndex=a)
-  b=data.frame(table(Reproducibility.clustering$Clustering.results))
-  
-  
-  
-  anno=data.frame(cluster=(Reproducibility.clustering$Clustering.results))
-  
-  ordering_of_cluster=table(Reproducibility.clustering$Clustering.results)
-  ordering_of_cluster=ordering_of_cluster[order(ordering_of_cluster,decreasing = T)]
-  
-  orderofcolumn=c()
-  for (i in names(ordering_of_cluster)) {
-    orderofcolumn=c(orderofcolumn,
-                    Reproducibility.clustering$Clustering.results[Reproducibility.clustering$Clustering.results==i])
-  }
-  
-  
-  
-  
-  cols = colorRampPalette(c( 'darkred',"white"))(50)
-  
-  ph=pheatmap::pheatmap(Disimilarity.fixed[names(orderofcolumn),
-                                           names(orderofcolumn)],
-                        cluster_rows = F,cluster_cols = F,show_rownames = F,
-                        show_colnames = F,annotation_names_col = F,annotation_names_row = F,color = cols,silent=T,annotation_row = data.frame(cluster=as.factor(Reproducibility.clustering$Clustering.results),
-                                                                                                                                              row.names = names(Reproducibility.clustering$Clustering.results)),
-                        annotation_col = data.frame(cluster=as.factor(Reproducibility.clustering$Clustering.results),
-                                                    row.names = names(Reproducibility.clustering$Clustering.results)))
-  
-  
-  
-  
-  usable.cluster=Reproducibility.clustering$Clustering.results[Reproducibility.clustering$Clustering.results%in%names(table(Reproducibility.clustering$Clustering.results)
-                                                                                                                      [table(Reproducibility.clustering$Clustering.results)>=(numbers_of_parameter_for_reproducibility_test/2)])]
-  usable.cluster=names(usable.cluster)
-  usable.cluster=usable.cluster[grepl(paste0('iteration.1_'),usable.cluster)]
-  
-  
-  Consensus.Affiliation.matrix=Affiliation.Matrix[,usable.cluster]
-  Consensus.Signature.matrix=Signature.Matrix[,usable.cluster]
-  Overall.Results=list()
-  Overall.Results[["Reproducibility_Heatmap"]]=ph
-  Overall.Results[["Reproducible_Signature_Matrix"]]=Consensus.Signature.matrix
-  Overall.Results[["Reproducible_Affiliation_Matrix"]]=Consensus.Affiliation.matrix
-  
-  return(Overall.Results)
-}
