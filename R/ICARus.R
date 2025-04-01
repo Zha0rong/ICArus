@@ -156,8 +156,6 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' @param scale Whether scale by column. Default is T
 #' @return A list of one vector and one ggplot,
 #' @import ggplot2
-#' @import kneedle
-
 #' @export
 PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standard_deviation'),scale=T) {
   measure=match.arg(measure)

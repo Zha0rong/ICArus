@@ -13,7 +13,7 @@ BugReports: https://github.com/Zha0rong/ICArus/issues
 biocViews: GeneExpression, Transcription, DifferentialExpression
 Imports: GDAtools, Rcpp, Rfast, doParallel, doSNOW,
         foreach, matrixStats, reshape2, rsvd, snow, truncnorm,
-        preprocessCore, pheatmap, fastICA, kneedle
+        preprocessCore, pheatmap, fastICA
 VignetteBuilder: rmarkdown
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
