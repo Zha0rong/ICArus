@@ -317,6 +317,7 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
   
   
   Results=list()
+  pb = txtProgressBar(min = 0, max = (optimal+numbers_of_parameter_for_reproducibility_test-1), initial = 0) 
   for (i in seq(optimal,(optimal+numbers_of_parameter_for_reproducibility_test-1))) {
     ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,
       iteration = iteration,scale=scale,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,
@@ -324,13 +325,14 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
       tol=tolerance,maxit=max.iteration)
     Results[[paste0('IC.',i)]]=ICAResults
     rm(ICAResults)
+    setTxtProgressBar(pb,i)
   }
+  close(pb)
+  
   Overall.Results[['Raw.Results']]=Results
   Filtered.Results=Results
   
-  pb = txtProgressBar(min = 0, max = length(names(Filtered.Results)), initial = 0) 
   
-  int=0
   for (run in names(Filtered.Results)) {
     Run=Filtered.Results[[run]]
     quality=Run$Cluster.Quality
@@ -347,10 +349,7 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
         Run$Disimilarity.fixed=NULL
         Filtered.Results[[run]]=Run
     }
-    int=int+1
-    setTxtProgressBar(pb,int)
   }
-  close(pb)
   
   if (length(names(Filtered.Results))<(numbers_of_parameter_for_reproducibility_test/2)) {
     stop('There is not enough signatures pass quality index threshold. Please increase the max.iteration (10000 is recommended) and decrease the tolerance (1e-6 at least is recommended) for fastICA.')
