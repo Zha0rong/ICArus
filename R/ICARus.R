@@ -315,6 +315,7 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
   
   Results=list()
   pb = txtProgressBar(min = 1, max = length(seq(optimal,(optimal+numbers_of_parameter_for_reproducibility_test-1))),style = 3) 
+  int=1
   for (i in seq(optimal,(optimal+numbers_of_parameter_for_reproducibility_test-1))) {
     ICAResults=ICARus(Matrix = Matrix,numberofcomponents = i,
       iteration = iteration,scale=scale,numberofcores = numberofcores,clustering_algorithm = clustering_algorithm,
@@ -322,7 +323,8 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
       tol=tolerance,maxit=max.iteration)
     Results[[paste0('IC.',i)]]=ICAResults
     rm(ICAResults)
-    setTxtProgressBar(pb,i)
+    int=int+1
+    setTxtProgressBar(pb,int)
   }
   close(pb)
   

@@ -206,8 +206,8 @@ ParaICA <- function(CountMatrix,numberofcomponents,iteration,numberofcores=2,sca
   
   cl <- snow::makeCluster(numberofcores)
   doSNOW::registerDoSNOW(cl)
-  pb <- txtProgressBar(max = iteration, style = 3)
-  progress <- function(n) setTxtProgressBar(pb, n)
+  #pb <- txtProgressBar(max = iteration, style = 3)
+  #progress <- function(n) setTxtProgressBar(pb, n)
   #opts <- list(progress = progress)
   x=foreach::foreach(i=seq(1,iteration),.packages=c('fastICA','Rfast')
                     # ,.options.snow = opts
@@ -225,7 +225,7 @@ ParaICA <- function(CountMatrix,numberofcomponents,iteration,numberofcores=2,sca
     Results[['Signature.Matrix']]=Signature.Matrix
     return(Results)
   }
-  close(pb)
+  #close(pb)
   snow::stopCluster(cl)
   Affiliation.Matrix=list()
   Signature.Matrix=list()
@@ -260,8 +260,8 @@ Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity
   cl <- snow::makeCluster(numberofcores)
   registerDoSNOW(cl)
   
-  pb <- txtProgressBar(max = length(Clusters), style = 3)
-  progress <- function(n) setTxtProgressBar(pb, n)
+  #pb <- txtProgressBar(max = length(Clusters), style = 3)
+  #progress <- function(n) setTxtProgressBar(pb, n)
   #opts <- list(progress = progress)
   x=foreach(i=seq(1,length(Clusters)),.packages=c('fastICA','JADE')
             #, .options.snow = opts
@@ -277,7 +277,7 @@ Cluster_Stability_Calculation <- function(Correlation_Matrix,Clustering_identity
     return(stability_index)
     
   }
-  close(pb)
+  #close(pb)
   snow::stopCluster(cl)
   x=unlist(x)
   stability_indices=x
