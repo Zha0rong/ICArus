@@ -98,7 +98,7 @@ colnames(Centered_Matrix)=colnames(Normalized_Counts)
 
 ## Run ICARus
 
-In this test run, I use 6 cores to run the analysis, which will take about 5 or 6 minutes to analyze the test dataset. 
+In this test run, I use 6 cores to run the analysis, which will take about 10 minutes to analyze the test dataset. 
 
 Please adjust the number of cores to use based on the data size and CPU availability.
 
@@ -128,6 +128,15 @@ names(color)=c('ctr','act')
 ggline(metadata,color='Condition',x='Timepoint',y=colnames(ICARus_results$Reproducible_Affiliation_Matrix),add=c('mean_se'),combine = T,nrow=2)+ylim(c(-0.75,0.75))+scale_color_manual(values = color)
 
 
+
+```
+
+# Environment and session information
+
+```{r sessioninfo, include=TRUE}
+
+
+sessionInfo()
 
 ```
 
