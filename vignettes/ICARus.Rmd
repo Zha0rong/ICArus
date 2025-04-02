@@ -10,7 +10,6 @@ output:
     number_sections: true
     fig_caption: yes
     theme: cerulean
-    code_folding: hide
 editor_options: 
   chunk_output_type: console
 params:
@@ -36,7 +35,7 @@ if (!require("edgeR")) BiocManager::install("edgeR")
   
 if (!require("ggpubr")) install.packages('ggpubr')
 
-  
+if (!require('DT')) install.packages('DT')
 })
 
 
@@ -65,7 +64,11 @@ metadata=ICARus::metadata
 metadata=metadata[metadata$Condition!='Initiation',]
 
 Raw_Counts=Raw_Counts[,rownames(metadata)]
+
+DT::datatable(metadata)
+
 ```
+
 
 
 ## Normalization
@@ -108,20 +111,23 @@ end=Sys.time()
 print(end-start)
 ```
 
+
 ## Association between Signatures and Phenotype information in metadata
 
 ```{r Association between Signatures and Phenotype information in metadata, include=TRUE}
+
+
 
 metadata=cbind(metadata[rownames(metadata),],
                ICARus_results$Reproducible_Affiliation_Matrix[rownames(metadata),])
 
 metadata$Condition=factor(metadata$Condition,
                           levels = c('ctr','act'))
-ggline(metadata,color='Condition',x='Timepoint',y=colnames(ICARus_results$Reproducible_Affiliation_Matrix),add=c('mean_se'),combine = T,nrow=2)+ylim(c(-0.75,0.75))
+color=c('#003153', "#8F4B28")
+names(color)=c('ctr','act')
+ggline(metadata,color='Condition',x='Timepoint',y=colnames(ICARus_results$Reproducible_Affiliation_Matrix),add=c('mean_se'),combine = T,nrow=2)+ylim(c(-0.75,0.75))+scale_color_manual(values = color)
+
+
 
 ```
-
-
-
-
 
