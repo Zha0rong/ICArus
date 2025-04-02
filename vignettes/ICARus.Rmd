@@ -1,0 +1,127 @@
+---
+title: "ICARus: Matrix Decomposition Based pipeline that extracts gene signatures from RNA-Seq data"
+author: "Zhaorong Li"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      toc_collapsed: true
+      toc_depth: 3
+    number_sections: true
+    fig_caption: yes
+    theme: cerulean
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+params:
+---
+
+
+# Installing the ICARus package
+
+To install ICARus, please follow the instructions here.
+
+```{r setup, include=TRUE}
+
+suppressMessages({
+  if (!require("BiocManager")) install.packages("BiocManager")
+
+if (!require("GO.db")) BiocManager::install("GO.db")
+
+if (!require("devtools")) install.packages('devtools')
+
+if (!require("ICARus")) devtools::install_github('Zha0rong/ICARus',force = T)
+
+if (!require("edgeR")) BiocManager::install("edgeR")
+  
+if (!require("ggpubr")) install.packages('ggpubr')
+
+  
+})
+
+
+```
+
+
+# Running ICARus
+
+The dataset is downloaded from the GEO repository: [GSE197067](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE197067).
+
+Reference
+
+Rade, M., Böhlen, S., Neuhaus, V., Löffler, D., Blumert, C., Merz, M., ... & Reiche, K. (2023). A time-resolved meta-analysis of consensus gene expression profiles during human T-cell activation. Genome biology, 24(1), 287.
+
+## Read in Data
+
+The data input for ICARus is a count matrix where rows are gene (IDs or symbols) and columns are samples.
+
+
+```{r Read in Samples, include=TRUE}
+
+Raw_Counts=ICARus::Count.Matrix
+
+metadata=ICARus::metadata
+
+metadata=metadata[metadata$Condition!='Initiation',]
+
+Raw_Counts=Raw_Counts[,rownames(metadata)]
+```
+
+
+## Normalization
+
+The data needs to be normalized, log-transformed and centered. Here I used the Counts-per-Million (CPM) method through function cpm() implemented by edgeR.
+
+```{r Normalization, include=TRUE}
+
+Normalized_Counts=(edgeR::cpm(Raw_Counts))
+
+fun <- function(x) {return(sum(x>=1)/length(x)>=0.25)}
+
+genes_to_keep = apply(Normalized_Counts,1,fun)
+
+Normalized_Counts=(Normalized_Counts[genes_to_keep,])
+
+Normalized_Counts=log(Normalized_Counts+1)
+Centered_Matrix=t(scale(t(Normalized_Counts),scale = F))
+
+rownames(Centered_Matrix)=rownames(Normalized_Counts)
+
+colnames(Centered_Matrix)=colnames(Normalized_Counts)
+
+
+```
+
+
+## Run ICARus
+
+In this test run, I use 6 cores to run the analysis, which will take about 5 or 6 minutes to analyze the test dataset. 
+
+Please adjust the number of cores to use based on the data size and CPU availability.
+
+```{r Run ICARus, include=TRUE}
+
+start=Sys.time()
+suppressMessages({ICARus_results=ICARus_complete(Centered_Matrix,numberofcores = 6,scale = F,max.iteration = 10000,tolerance = 1e-8)})
+end=Sys.time()
+
+print(end-start)
+```
+
+## Association between Signatures and Phenotype information in metadata
+
+```{r Association between Signatures and Phenotype information in metadata, include=TRUE}
+
+metadata=cbind(metadata[rownames(metadata),],
+               ICARus_results$Reproducible_Affiliation_Matrix[rownames(metadata),])
+
+metadata$Condition=factor(metadata$Condition,
+                          levels = c('ctr','act'))
+ggline(metadata,color='Condition',x='Timepoint',y=colnames(ICARus_results$Reproducible_Affiliation_Matrix),add=c('mean_se'),combine = T,nrow=2)+ylim(c(-0.75,0.75))
+
+```
+
+
+
+
+

@@ -212,8 +212,10 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
   
   pb <- txtProgressBar(max = length(seq(min_cluster,max_cluster)), style = 3)
   progress <- function(n) setTxtProgressBar(pb, n)
-  opts <- list(progress = progress)
-  x=foreach(i=seq(min_cluster,max_cluster),.packages=c('cluster'), .options.snow = opts) %dopar% {
+  #opts <- list(progress = progress)
+  x=foreach(i=seq(min_cluster,max_cluster),.packages=c('cluster')
+            #, .options.snow = opts
+            ) %dopar% {
     Clustering.results=cutree(clustering_results,k = i)
     sil=silhouette(Clustering.results,dist = Disimmilarity)
     sil=mean(sil[,3])
@@ -325,6 +327,10 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
   }
   Overall.Results[['Raw.Results']]=Results
   Filtered.Results=Results
+  
+  pb = txtProgressBar(min = 0, max = length(names(Filtered.Results)), initial = 0) 
+  
+  int=0
   for (run in names(Filtered.Results)) {
     Run=Filtered.Results[[run]]
     quality=Run$Cluster.Quality
@@ -341,7 +347,11 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
         Run$Disimilarity.fixed=NULL
         Filtered.Results[[run]]=Run
     }
+    int=int+1
+    setTxtProgressBar(pb,int)
   }
+  close(pb)
+  
   if (length(names(Filtered.Results))<(numbers_of_parameter_for_reproducibility_test/2)) {
     stop('There is not enough signatures pass quality index threshold. Please increase the max.iteration (10000 is recommended) and decrease the tolerance (1e-6 at least is recommended) for fastICA.')
   }
