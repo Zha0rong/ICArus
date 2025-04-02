@@ -24,4 +24,4 @@ devtools::install_github('Zha0rong/ICARus',force = T)
 
 Vignette in [R markdown format](https://github.com/Zha0rong/ICArus/blob/main/vignettes/ICARus.Rmd).
 
-Pre-built Vignette in [HTML format](https://github.com/Zha0rong/ICArus/blob/main/vignettes/ICARus.html).
+Pre-built Vignette in [HTML format](https://html-preview.github.io/?url=https://github.com/Zha0rong/ICArus/blob/main/vignettes/ICARus.html).
