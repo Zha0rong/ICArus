@@ -209,9 +209,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
   
   cl <- makeCluster(numberofcores)
   registerDoSNOW(cl)
-  
-  pb <- txtProgressBar(max = length(seq(min_cluster,max_cluster)), style = 3)
-  progress <- function(n) setTxtProgressBar(pb, n)
+
   #opts <- list(progress = progress)
   x=foreach(i=seq(min_cluster,max_cluster),.packages=c('cluster')
             #, .options.snow = opts
@@ -221,7 +219,6 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
     sil=mean(sil[,3])
     return(sil)
   }
-  close(pb)
   stopCluster(cl)
   
   
