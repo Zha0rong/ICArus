@@ -172,7 +172,7 @@ PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standa
   PCA.candidates=PCA.candidates
   Results$ElbowPoint=ifelse(measure=='standard_deviation',
     kneedle(seq(1,length(PCA.candidates)),PCA.candidates)[1]-1,
-    kneedle(seq(1,length(PCA.candidates)),1/PCA.candidates)[1])
+    kneedle(seq(1,length(PCA.candidates)),PCA.candidates)[1])
   
   plot_data=data.frame(index=seq(1,length(PCA.candidates)),stdev=PCA.candidates)
   plot_data$label=ifelse(plot_data$index==Results$ElbowPoint,yes=paste0('Elbow Point: ',Results$ElbowPoint),no='')
