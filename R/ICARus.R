@@ -127,7 +127,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
         cluster=cutree(cluster,i)
         Disimmilarity.Results$Clustering.results.item$clustering=cluster
     }
-    Cluster_Quality=Cluster_Stability_Calculation((correlation),Clustering_identity = Disimmilarity.Results$Clustering.results$clustering,numberofcores = numberofcores)
+    Cluster_Quality=Cluster_Stability_Calculation(abs(correlation),Clustering_identity = Disimmilarity.Results$Clustering.results$clustering,numberofcores = numberofcores)
     Cluster_Quality=data.frame(ICs=rep(i,length(Cluster_Quality)),ClusterNumber=names(Cluster_Quality),QualityIndex=Cluster_Quality)
     Cluster_Size=data.frame(table(Disimmilarity.Results$Clustering.results$clustering))
     rownames(Cluster_Size)=Cluster_Size$Var1
@@ -383,7 +383,7 @@ ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_d
   
   
   
-  Cluster_Quality=Cluster_Stability_Calculation(correlation,Clustering_identity = Reproducibility.clustering$Clustering.results,numberofcores = numberofcores)
+  Cluster_Quality=Cluster_Stability_Calculation(abs(correlation),Clustering_identity = Reproducibility.clustering$Clustering.results,numberofcores = numberofcores)
   Cluster_Quality=data.frame(ICs=rep(optimal,length(Cluster_Quality)),ClusterNumber=names(Cluster_Quality),QualityIndex=Cluster_Quality)
   Cluster_Size=data.frame(table(Reproducibility.clustering$Clustering.results))
   rownames(Cluster_Size)=Cluster_Size$Var1
