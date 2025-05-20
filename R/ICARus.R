@@ -157,7 +157,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' @return A list of one vector and one ggplot,
 #' @import ggplot2
 #' @export
-PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standard_deviation'),scale=T) {
+PCA.Estimation <- function(Matrix=NULL,measure=c('standard_deviation','cumulative_proportion',,'proportion_of_variance'),scale=T) {
   measure=match.arg(measure)
   
   Normalized=Matrix
@@ -168,8 +168,15 @@ PCA.Estimation <- function(Matrix=NULL,measure=c('cumulative_proportion','standa
   Results=list()
   PCA=prcomp(t(Normalized),center=F,scale.=F)
   PCA.summary=summary(PCA)
-  PCA.candidates=smooth(PCA.summary$importance[ifelse(measure=='standard_deviation',yes = 1,no = 3),])
-  PCA.candidates=PCA.candidates
+  if (measure=='standard_deviation') {
+    PCA.candidates=smooth(PCA.summary$importance[1,])
+  }
+  if (measure=='cumulative_proportion') {
+    PCA.candidates=smooth(PCA.summary$importance[2,])
+  }
+  if (measure=='proportion_of_variance') {
+    PCA.candidates=smooth(PCA.summary$importance[3,])
+  }
   Results$ElbowPoint=ifelse(measure=='standard_deviation',
     kneedle(seq(1,length(PCA.candidates)),PCA.candidates)[1]-1,
     kneedle(seq(1,length(PCA.candidates)),PCA.candidates)[1])
@@ -289,7 +296,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @import pheatmap
 #' @import fastICA
 #' @export
-ICARus_complete <- function(Matrix,measure=c('cumulative_proportion','standard_deviation'),iteration=100,numberofcores=4,
+ICARus_complete <- function(Matrix,measure=c('standard_deviation','cumulative_proportion',,'proportion_of_variance'),iteration=100,numberofcores=4,
                             numbers_of_parameter_for_reproducibility_test=10,
                             distance_measure=c('pearson','euclidean'),
                             clustering_algorithm=c('Hierarchical'),
