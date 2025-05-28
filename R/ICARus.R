@@ -157,7 +157,7 @@ ICARus_est <- function(Matrix,parameter_set,iteration=100,numberofcores=2,distan
 #' @return A list of one vector and one ggplot,
 #' @import ggplot2
 #' @export
-PCA.Estimation <- function(Matrix=NULL,measure=c('standard_deviation','cumulative_proportion',,'proportion_of_variance'),scale=T) {
+PCA.Estimation <- function(Matrix=NULL,measure=c('standard_deviation','cumulative_proportion','proportion_of_variance'),scale=T) {
   measure=match.arg(measure)
   
   Normalized=Matrix
