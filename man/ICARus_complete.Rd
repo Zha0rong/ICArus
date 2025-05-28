@@ -6,7 +6,7 @@
 \usage{
 ICARus_complete(
   Matrix,
-  measure = c("cumulative_proportion", "standard_deviation"),
+  measure = c("standard_deviation", "cumulative_proportion", , "proportion_of_variance"),
   iteration = 100,
   numberofcores = 4,
   numbers_of_parameter_for_reproducibility_test = 10,
@@ -19,7 +19,8 @@ ICARus_complete(
   max.iteration = 1000,
   upperbound = 100,
   quality.index.threshold = 0.75,
-  lowerbound = 50
+  lowerbound = 50,
+  keep_only_optimal = c(T, F)
 )
 }
 \arguments{
