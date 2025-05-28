@@ -296,7 +296,7 @@ Signature_Hierarchical_Clustering <- function(Disimmilarity,Affiliation.Matrix,S
 #' @import pheatmap
 #' @import fastICA
 #' @export
-ICARus_complete <- function(Matrix,measure=c('standard_deviation','cumulative_proportion',,'proportion_of_variance'),iteration=100,numberofcores=4,
+ICARus_complete <- function(Matrix,measure=c('standard_deviation','cumulative_proportion','proportion_of_variance'),iteration=100,numberofcores=4,
                             numbers_of_parameter_for_reproducibility_test=10,
                             distance_measure=c('pearson','euclidean'),
                             clustering_algorithm=c('Hierarchical'),
