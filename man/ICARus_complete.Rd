@@ -6,7 +6,7 @@
 \usage{
 ICARus_complete(
   Matrix,
-  measure = c("standard_deviation", "cumulative_proportion", , "proportion_of_variance"),
+  measure = c("standard_deviation", "cumulative_proportion", "proportion_of_variance"),
   iteration = 100,
   numberofcores = 4,
   numbers_of_parameter_for_reproducibility_test = 10,

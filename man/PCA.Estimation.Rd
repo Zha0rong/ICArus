@@ -6,7 +6,7 @@
 \usage{
 PCA.Estimation(
   Matrix = NULL,
-  measure = c("standard_deviation", "cumulative_proportion", , "proportion_of_variance"),
+  measure = c("standard_deviation", "cumulative_proportion", "proportion_of_variance"),
   scale = T
 )
 }
