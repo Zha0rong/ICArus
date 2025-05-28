@@ -306,7 +306,7 @@ ICARus_complete <- function(Matrix,measure=c('standard_deviation','cumulative_pr
                             max.iteration=1000,
                             upperbound=100,
                             quality.index.threshold=0.75,
-                            lowerbound=50) {
+                            lowerbound=50,keep_only_optimal=T) {
   distance_measure=match.arg(distance_measure)
   clustering_algorithm=match.arg(clustering_algorithm)
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
@@ -423,19 +423,28 @@ ICARus_complete <- function(Matrix,measure=c('standard_deviation','cumulative_pr
                                           row.names = names(Reproducibility.clustering$Clustering.results)))
   
   Overall.Results[["Reproducibility_Heatmap"]]=ph
-  
-  usable.cluster=Reproducibility.clustering$Clustering.results[Reproducibility.clustering$Clustering.results%in%names(table(Reproducibility.clustering$Clustering.results)
-                                                                                                                      [table(Reproducibility.clustering$Clustering.results)>=(numbers_of_parameter_for_reproducibility_test/2)])]
-  usable.cluster=names(usable.cluster)
-  usable.cluster=usable.cluster[grepl(paste0('IC.',optimal),usable.cluster)]
-  usable.cluster=gsub(paste0('IC.',optimal,'.'),'',usable.cluster)
-  Ideal_Results=Results[[paste0('IC.',optimal)]]
-  
-  Consensus.Affiliation.matrix=Ideal_Results$Clustered.Affiliation.matrix[,usable.cluster]
-  Consensus.Signature.matrix=Ideal_Results$Clustered.Signature.matrix[,usable.cluster]
+  if (keep_only_optimal) {
+    
+    usable.cluster=Reproducibility.clustering$Clustering.results[Reproducibility.clustering$Clustering.results%in%names(table(Reproducibility.clustering$Clustering.results)
+                                                                                                                        [table(Reproducibility.clustering$Clustering.results)>=(numbers_of_parameter_for_reproducibility_test/2)])]
+    usable.cluster=names(usable.cluster)
+    usable.cluster=usable.cluster[grepl(paste0('IC.',optimal),usable.cluster)]
+    usable.cluster=gsub(paste0('IC.',optimal,'.'),'',usable.cluster)
+    Ideal_Results=Results[[paste0('IC.',optimal)]]
+    
+    Consensus.Affiliation.matrix=Ideal_Results$Clustered.Affiliation.matrix[,usable.cluster]
+    Consensus.Signature.matrix=Ideal_Results$Clustered.Signature.matrix[,usable.cluster]
+  } else {
+    usable.cluster=Reproducibility.clustering$Clustering.results[Reproducibility.clustering$Clustering.results%in%names(table(Reproducibility.clustering$Clustering.results)
+                                                                                                                        [table(Reproducibility.clustering$Clustering.results)>=(numbers_of_parameter_for_reproducibility_test/2)])]
+    Medoids=GDAtools::medoids(as.dist(Disimilarity.fixed), Reproducibility.clustering$Clustering.results)
+    Medoids=(Reproducibility.clustering$Clustering.results)[Medoids]
+    Medoids=Medoids[Medoids%in%usable.cluster]
+    Consensus.Signature.matrix=Clustered.Signature.matrix[,names(Medoids)]
+    Consensus.Affiliation.matrix=Clustered.Affiliation.matrix[,names(Medoids)]
+  }
   Overall.Results[["Reproducible_Signature_Matrix"]]=Consensus.Signature.matrix
   Overall.Results[["Reproducible_Affiliation_Matrix"]]=Consensus.Affiliation.matrix
-  
   return(Overall.Results)
 }
 
