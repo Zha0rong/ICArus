@@ -20,7 +20,7 @@ ICARus_complete(
   upperbound = 100,
   quality.index.threshold = 0.75,
   lowerbound = 50,
-  keep_only_optimal = c(T, F)
+  keep_only_optimal = T
 )
 }
 \arguments{

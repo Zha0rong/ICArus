@@ -306,13 +306,11 @@ ICARus_complete <- function(Matrix,measure=c('standard_deviation','cumulative_pr
                             max.iteration=1000,
                             upperbound=100,
                             quality.index.threshold=0.75,
-                            lowerbound=50,keep_only_optimal=c(T,F)) {
+                            lowerbound=50,keep_only_optimal=T) {
   distance_measure=match.arg(distance_measure)
   clustering_algorithm=match.arg(clustering_algorithm)
   Hierarchical.clustering.method=match.arg(Hierarchical.clustering.method)
   measure=match.arg(measure)
-  keep_only_optimal=match.arg(keep_only_optimal)
-  
   Overall.Results=list()
 
   Normalized=Matrix
